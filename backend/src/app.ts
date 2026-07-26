@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -5,10 +6,6 @@ import morgan from "morgan";
 import { env } from "./config/env";
 import routes from "./routes";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware";
-// Import explícito (não só via tsconfig "include") para que checadores de tipo
-// que percorrem o grafo de módulos a partir do entrypoint (ex.: build da Vercel)
-// também apliquem a extensão de Request (user, tripRole).
-import "./types/express";
 
 export function createApp() {
   const app = express();
