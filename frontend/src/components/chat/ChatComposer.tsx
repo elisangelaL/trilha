@@ -168,7 +168,7 @@ export function ChatComposer({
             onPointerMove={handleMicMove}
             style={{ background: dragCanceled ? "var(--color-accent)" : undefined, touchAction: "none" }}
           >
-            {dragCanceled ? <TrashIcon size={16} stroke="#fff" /> : <MicIcon size={16} stroke={isRecording ? "#fff" : undefined} />}
+            {dragCanceled ? <TrashIcon size={16} stroke="#fff" /> : <MicIcon size={16} stroke={isRecording ? "#fff" : "currentColor"} />}
           </Button>
         )}
       </div>
