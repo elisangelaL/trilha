@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-3f4d782b-ac33-4221-bfb5-25839032136b/styles.css?v=3">
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--color-neutral-900);padding:40px 20px;font-family:var(--font-body)">
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ 390 }}" height="{{ 844 }}" hint-size="390,844">
+    <div style="position:relative;height:100%;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);overflow:hidden;padding-top:54px">
+
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;height:100%;padding:32px 24px;justify-content:center;gap:28px;overflow-y:auto">
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px;color:var(--color-accent)"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"></polygon></svg>
+            <h1 style="margin:0;font-size:28px">Trilha</h1>
+          </div>
+          <p style="margin:0;font-size:15px;opacity:.8">Planeje viagens em grupo, tudo em um só lugar.</p>
+          <form onSubmit="{{ handleLogin }}" style="display:flex;flex-direction:column;gap:16px">
+            <div class="field"><label>E-mail</label><input class="input" type="email" defaultValue="voce@email.com" required=""></div>
+            <div class="field"><label>Senha</label><input class="input" type="password" defaultValue="senha123" required=""></div>
+            <button class="btn btn-primary btn-block" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>Entrar</button>
+          </form>
+          <div class="hr" style="margin:0"></div>
+          <button class="btn btn-secondary btn-block" onClick="{{ handleLogin }}">Criar conta</button>
+          <a href="#" onClick="{{ handleLogin }}" style="font-size:13px">Esqueci minha senha</a>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;height:100%;display:flex;flex-direction:column">
+          <div class="nav">
+            <div class="nav-brand" style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:var(--color-accent)"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"></polygon></svg>Trilha</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:var(--font-heading);flex:none">VC</div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:20px 16px 100px">
+            <sc-if value="{{ isHomeTabViagens }}" hint-placeholder-val="{{ true }}">
+              <h6 style="margin:0 0 12px">Suas viagens</h6>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <sc-for list="{{ trips }}" as="trip" hint-placeholder-count="3">
+                  <div class="card elev-sm" style="cursor:pointer;padding:0;overflow:hidden" onClick="{{ trip.open }}">
+                    <div class="grayscale" style="width:100%;height:140px">
+                      <image-slot id="{{ trip.coverId }}" shape="rect" placeholder="{{ trip.coverPlaceholder }}"></image-slot>
+                    </div>
+                    <div style="padding:12px;display:flex;flex-direction:column;gap:6px">
+                      <span class="tag {{ trip.roleTagClass }}" style="align-self:flex-start">{{ trip.role }}</span>
+                      <div class="card-title">{{ trip.title }}</div>
+                      <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>{{ trip.location }}</div>
+                      <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>{{ trip.dates }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isHomeTabPerfil }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 24px">
+                <div style="width:72px;height:72px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-family:var(--font-heading)">VC</div>
+                <h3 style="margin:8px 0 0">Você</h3>
+                <div class="text-muted" style="font-size:13px">voce@email.com</div>
+              </div>
+              <div class="hr" style="margin:0 0 16px"></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <button class="btn btn-secondary btn-block">Editar perfil</button>
+                <button class="btn btn-secondary btn-block">Notificações</button>
+                <button class="btn btn-secondary btn-block">Ajuda e suporte</button>
+                <button class="btn btn-secondary btn-block" onClick="{{ logout }}" style="color:var(--color-accent-700)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair da conta</button>
+              </div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ isHomeTabViagens }}" hint-placeholder-val="{{ true }}">
+            <button class="btn btn-primary btn-icon" style="position:absolute;right:20px;bottom:88px;width:52px;height:52px;box-shadow:var(--shadow-md)" title="Nova viagem" onClick="{{ openNewTrip }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+          </sc-if>
+          <div class="nav" style="border-top:2px solid var(--color-divider);border-bottom:none;justify-content:space-around;padding:10px 16px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;cursor:pointer;color:{{ homeTabViagensColor }}" onClick="{{ setHomeTabViagens }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Viagens</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;cursor:pointer;color:{{ homeTabPerfilColor }}" onClick="{{ setHomeTabPerfil }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Perfil</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isNewTrip }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;height:100%;display:flex;flex-direction:column">
+          <div class="nav">
+            <button class="btn btn-icon btn-ghost" onClick="{{ goHome }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <div class="nav-brand" style="font-size:15px;text-align:center;flex:1;margin-right:0">Nova viagem</div>
+            <div style="width:36px"></div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+            <div class="grayscale" style="width:100%;height:130px"><image-slot id="new-trip-cover" shape="rect" placeholder="Foto de capa"></image-slot></div>
+            <div class="field"><label>Título</label><input class="input" id="new-trip-title" placeholder="Ex: Chapada Diamantina"></div>
+            <div class="field"><label>Local</label><input class="input" id="new-trip-location" placeholder="Ex: Bahia, Brasil"></div>
+            <div style="display:flex;gap:10px">
+              <div class="field" style="flex:1"><label>Início</label><input class="input" id="new-trip-start" type="date"></div>
+              <div class="field" style="flex:1"><label>Fim</label><input class="input" id="new-trip-end" type="date"></div>
+            </div>
+            <button class="btn btn-primary btn-block" onClick="{{ submitNewTrip }}">Criar viagem</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTrip }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;height:100%;display:flex;flex-direction:column">
+          <div class="nav">
+            <button class="btn btn-icon btn-ghost" onClick="{{ goHome }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <div class="nav-brand" style="font-size:15px;text-align:center;flex:1;margin-right:0">{{ currentTrip.title }}</div>
+            <button class="btn btn-icon btn-ghost" onClick="{{ openChat }}" title="Chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+            <button class="btn btn-icon btn-ghost"><svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><circle cx="12" cy="12" r="1.6"></circle><circle cx="19" cy="12" r="1.6"></circle><circle cx="5" cy="12" r="1.6"></circle></svg></button>
+          </div>
+          <div style="flex:1;overflow-y:auto">
+            <div class="grayscale" style="width:100%;height:170px">
+              <image-slot id="{{ currentTrip.coverId }}" shape="rect" placeholder="Foto de capa da viagem"></image-slot>
+            </div>
+            <div style="padding:16px 16px 8px">
+              <span class="tag {{ currentTrip.roleTagClass }}">{{ currentTrip.roleLabel }}</span>
+              <h2 style="margin:10px 0 6px">{{ currentTrip.title }}</h2>
+              <div class="card-meta" style="margin-bottom:3px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>{{ currentTrip.location }}</div>
+              <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>{{ currentTrip.dates }}</div>
+            </div>
+            <div style="padding:0 16px 14px">
+              <div class="seg" style="width:100%;display:flex">
+                <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="tripTab" checked="{{ isOverviewTab }}" onChange="{{ setTabOverview }}">Descobertas</label>
+                <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="tripTab" checked="{{ isExpensesTab }}" onChange="{{ setTabExpenses }}">Gastos</label>
+                <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="tripTab" checked="{{ isMembersTab }}" onChange="{{ setTabMembers }}">Membros</label>
+              </div>
+            </div>
+
+            <sc-if value="{{ isOverviewTab }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:0 16px 28px;display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ currentTrip.categories }}" as="cat" hint-placeholder-count="2">
+                  <h6 style="margin:6px 0 -2px;color:var(--color-accent-700)">{{ cat.label }}</h6>
+                  <sc-for list="{{ cat.items }}" as="entry" hint-placeholder-count="2">
+                    <sc-if value="{{ entry.isPhoto }}" hint-placeholder-val="{{ false }}">
+                      <figure style="margin:0">
+                        <div class="grayscale" style="width:100%;height:190px"><image-slot id="{{ entry.slotId }}" shape="rect" placeholder="Foto de referência"></image-slot></div>
+                        <figcaption>{{ entry.caption }} · <span class="text-muted">{{ entry.author }}</span></figcaption>
+                      </figure>
+                    </sc-if>
+                    <sc-if value="{{ entry.isText }}" hint-placeholder-val="{{ false }}">
+                      <div class="card">
+                        <div class="card-kicker">Anotação</div>
+                        <div class="card-title">{{ entry.title }}</div>
+                        <p class="card-body">{{ entry.body }}</p>
+                        <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>{{ entry.author }}</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ entry.isLink }}" hint-placeholder-val="{{ false }}">
+                      <div class="card" style="flex-direction:row;padding:0;overflow:hidden">
+                        <div class="grayscale" style="width:96px;height:96px;flex:none"><image-slot id="{{ entry.slotId }}" shape="rect" placeholder="thumb"></image-slot></div>
+                        <div style="padding:8px 12px;display:flex;flex-direction:column;gap:4px;justify-content:center;min-width:0">
+                          <div class="tag tag-outline" style="align-self:flex-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;margin-right:4px"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>{{ entry.platform }}</div>
+                          <div class="card-title" style="font-size:14px">{{ entry.title }}</div>
+                          <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>{{ entry.author }}</div>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </sc-for>
+                <sc-if value="{{ currentTrip.canEdit }}" hint-placeholder-val="{{ true }}">
+                  <button class="btn btn-secondary btn-block" onClick="{{ openAddContent }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Adicionar descoberta</button>
+                </sc-if>
+                <sc-if value="{{ currentTrip.isReadOnly }}" hint-placeholder-val="{{ false }}">
+                  <span class="tag tag-neutral" style="align-self:center">Somente leitura</span>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isExpensesTab }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 16px 28px;display:flex;flex-direction:column;gap:14px">
+                <div class="card elev-sm">
+                  <div class="card-kicker">Resumo</div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px">
+                    <span style="font-family:var(--font-heading);font-weight:800;font-size:24px">{{ currentTrip.totalFormatted }}</span>
+                    <span class="text-muted" style="font-size:12px">dividido entre {{ currentTrip.memberCount }} pessoas</span>
+                  </div>
+                  <div class="hr" style="margin:8px 0"></div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{ currentTrip.balances }}" as="b" hint-placeholder-count="3">
+                      <div style="display:flex;justify-content:space-between;font-size:13px">
+                        <span>{{ b.name }}</span>
+                        <span style="color:{{ b.color }};font-weight:600">{{ b.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-for list="{{ currentTrip.expenses }}" as="exp" hint-placeholder-count="4">
+                  <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                      <div style="min-width:0">
+                        <div class="card-kicker">{{ exp.category }}</div>
+                        <div class="card-title" style="font-size:15px">{{ exp.desc }}</div>
+                      </div>
+                      <div style="font-family:var(--font-heading);font-weight:800;font-size:15px;white-space:nowrap">{{ exp.amountFormatted }}</div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div class="card-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Adicionado por {{ exp.paidBy }}</div>
+                      <sc-if value="{{ exp.receipt }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;margin-right:4px"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-3 2z"></path><line x1="8" y1="7" x2="16" y2="7"></line><line x1="8" y1="11" x2="16" y2="11"></line></svg>Recibo</span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ currentTrip.canEdit }}" hint-placeholder-val="{{ true }}">
+                  <button class="btn btn-primary btn-block" onClick="{{ openAddExpense }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Adicionar gasto</button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isMembersTab }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 16px 28px;display:flex;flex-direction:column;gap:12px">
+                <sc-for list="{{ currentTrip.members }}" as="m" hint-placeholder-count="4">
+                  <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                      <div style="width:36px;height:36px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:var(--font-heading);flex:none">{{ m.initials }}</div>
+                      <div style="min-width:0">
+                        <div style="font-size:14px;font-weight:600">{{ m.name }}</div>
+                        <div class="text-muted" style="font-size:11px">{{ m.roleLabel }}</div>
+                      </div>
+                    </div>
+                    <sc-if value="{{ currentTrip.canManageMembers }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ m.isOwner }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Dono</span></sc-if>
+                      <sc-if value="{{ m.isNotOwner }}" hint-placeholder-val="{{ true }}">
+                        <button class="btn btn-icon btn-ghost" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                      </sc-if>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ currentTrip.canManageMembers }}" hint-placeholder-val="{{ false }}">
+                  <button class="btn btn-primary btn-block" onClick="{{ openInvite }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>Convidar pessoa</button>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+<sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;height:100%;display:flex;flex-direction:column">
+          <div class="nav">
+            <button class="btn btn-icon btn-ghost" onClick="{{ closeChat }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <div class="nav-brand" style="font-size:15px;text-align:center;flex:1;margin-right:0">Chat · {{ currentTrip.title }}</div>
+            <div style="width:36px"></div>
+          </div>
+          <div style="flex:1;overflow-y:auto">
+            <sc-for list="{{ currentTrip.messages }}" as="msg" hint-placeholder-count="4">
+              <div style="padding:10px 16px;border-bottom:1px solid var(--color-divider)">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                  <div style="width:26px;height:26px;border-radius:50%;background:var(--color-accent-100);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-family:var(--font-heading);flex:none">{{ msg.initials }}</div>
+                  <span style="font-size:13px;font-weight:600">{{ msg.author }}</span>
+                  <span class="text-muted" style="font-size:11px;margin-left:auto">{{ msg.time }}</span>
+                </div>
+                <sc-if value="{{ msg.isText }}" hint-placeholder-val="{{ true }}">
+                  <p style="margin:0 0 0 34px;font-size:14px">{{ msg.text }}</p>
+                </sc-if>
+                <sc-if value="{{ msg.isImage }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-left:34px">
+                    <div class="grayscale" style="width:200px;height:130px"><image-slot id="{{ msg.slotId }}" shape="rect" placeholder="Foto compartilhada"></image-slot></div>
+                    <sc-if value="{{ msg.caption }}" hint-placeholder-val="{{ false }}"><div class="text-muted" style="font-size:11px;margin-top:4px">{{ msg.caption }}</div></sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ msg.isAudio }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-left:34px;display:flex;align-items:center;gap:10px;background:var(--color-surface);padding:8px 12px;width:fit-content">
+                    <div style="width:26px;height:26px;border-radius:50%;background:var(--color-accent);display:flex;align-items:center;justify-content:center;flex:none">
+                      <svg viewBox="0 0 24 24" fill="#fff" style="width:12px;height:12px"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                    <div style="display:flex;align-items:flex-end;gap:2px;height:18px">
+                      <div style="width:3px;height:6px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:14px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:9px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:18px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:11px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:15px;background:var(--color-accent-400)"></div>
+                      <div style="width:3px;height:7px;background:var(--color-accent-400)"></div>
+                    </div>
+                    <span class="text-muted" style="font-size:11px">{{ msg.duration }}</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;padding:10px 16px;border-top:2px solid var(--color-divider)">
+            <button class="btn btn-icon btn-secondary" onClick="{{ addChatImage }}" title="Anexar foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></button>
+            <button class="btn btn-icon btn-secondary" onClick="{{ addChatAudio }}" title="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button>
+            <input class="input" id="chat-text" placeholder="Escreva uma mensagem..." style="flex:1" onKeyDown="{{ handleChatKeyDown }}">
+            <button class="btn btn-icon btn-primary" onClick="{{ sendChatText }}" title="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showAddContent }}" hint-placeholder-val="{{ false }}">
+        <div class="dialog-backdrop" style="position:absolute;inset:0;z-index:100" onClick="{{ closeAddContent }}">
+          <div class="dialog" onClick="{{ stopProp }}">
+            <div class="dialog-title">Adicionar ao diário</div>
+            <div class="seg" style="width:100%;display:flex">
+              <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="ctype" checked="{{ contentTypeFoto }}" onChange="{{ setContentTypeFoto }}">Foto</label>
+              <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="ctype" checked="{{ contentTypeTexto }}" onChange="{{ setContentTypeTexto }}">Texto</label>
+              <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="ctype" checked="{{ contentTypeLink }}" onChange="{{ setContentTypeLink }}">Link</label>
+            </div>
+            <div class="field"><label>Categoria</label>
+              <select class="input" id="new-category">
+                <option value="visitar">Visitar</option>
+                <option value="comer">Comer &amp; beber</option>
+                <option value="hospedagem">Hospedagem</option>
+                <option value="transporte">Transporte</option>
+              </select>
+            </div>
+            <sc-if value="{{ contentTypeFoto }}" hint-placeholder-val="{{ true }}">
+              <div class="grayscale" style="width:100%;height:130px"><image-slot id="new-photo-slot" shape="rect" placeholder="Solte a foto aqui"></image-slot></div>
+              <div class="field"><label>Legenda</label><input class="input" id="new-caption" placeholder="Ex: Vista do mirante"></div>
+            </sc-if>
+            <sc-if value="{{ contentTypeTexto }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Título</label><input class="input" id="new-title" placeholder="Ex: Roteiro do dia 4"></div>
+              <div class="field"><label>Texto</label><textarea class="input" id="new-body" placeholder="Escreva os detalhes..."></textarea></div>
+            </sc-if>
+            <sc-if value="{{ contentTypeLink }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Plataforma</label>
+                <select class="input" id="new-platform">
+                  <option>YouTube</option><option>TikTok</option><option>Instagram</option><option>Outro</option>
+                </select>
+              </div>
+              <div class="field"><label>Link</label><input class="input" id="new-url" placeholder="https://..."></div>
+              <div class="field"><label>Título</label><input class="input" id="new-linktitle" placeholder="Do que se trata?"></div>
+            </sc-if>
+            <div class="dialog-actions">
+              <button class="btn btn-secondary" onClick="{{ closeAddContent }}">Cancelar</button>
+              <button class="btn btn-primary" onClick="{{ submitAddContent }}">Publicar</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showAddExpense }}" hint-placeholder-val="{{ false }}">
+        <div class="dialog-backdrop" style="position:absolute;inset:0;z-index:100" onClick="{{ closeAddExpense }}">
+          <div class="dialog" onClick="{{ stopProp }}">
+            <div class="dialog-title">Adicionar gasto</div>
+            <div class="field"><label>Descrição</label><input class="input" id="exp-desc" placeholder="Ex: Ingresso do museu"></div>
+            <div class="field"><label>Valor (R$)</label><input class="input" id="exp-amount" type="number" step="0.01" placeholder="0,00"></div>
+            <div class="field"><label>Pago por</label>
+              <select class="input" id="exp-paidby">
+                <sc-for list="{{ currentTrip.members }}" as="m" hint-placeholder-count="3">
+                  <option value="{{ m.name }}">{{ m.name }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <div class="field"><label>Categoria</label>
+              <select class="input" id="exp-category">
+                <option>Transporte</option><option>Hospedagem</option><option>Alimentação</option><option>Passeios</option><option>Outros</option>
+              </select>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+              <input type="checkbox" checked="{{ expenseHasReceipt }}" onChange="{{ toggleExpenseReceipt }}" style="width:16px;height:16px;accent-color:var(--color-accent)">
+              Anexar recibo
+            </label>
+            <sc-if value="{{ expenseHasReceipt }}" hint-placeholder-val="{{ false }}">
+              <div style="width:100%;height:100px"><image-slot id="new-receipt" shape="rect" placeholder="Foto do recibo"></image-slot></div>
+            </sc-if>
+            <div class="dialog-actions">
+              <button class="btn btn-secondary" onClick="{{ closeAddExpense }}">Cancelar</button>
+              <button class="btn btn-primary" onClick="{{ submitAddExpense }}">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showInvite }}" hint-placeholder-val="{{ false }}">
+        <div class="dialog-backdrop" style="position:absolute;inset:0;z-index:100" onClick="{{ closeInvite }}">
+          <div class="dialog" onClick="{{ stopProp }}">
+            <div class="dialog-title">Convidar pessoa</div>
+            <div class="field"><label>E-mail</label><input class="input" id="invite-email" type="email" placeholder="nome@email.com"></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label class="radio"><input type="radio" name="invrole" checked="{{ inviteRoleEditor }}" onChange="{{ setInviteRoleEditor }}"><span class="dot"></span>Pode editar</label>
+              <label class="radio"><input type="radio" name="invrole" checked="{{ inviteRoleViewer }}" onChange="{{ setInviteRoleViewer }}"><span class="dot"></span>Somente leitura</label>
+            </div>
+            <div class="dialog-actions">
+              <button class="btn btn-secondary" onClick="{{ closeInvite }}">Cancelar</button>
+              <button class="btn btn-primary" onClick="{{ submitInvite }}">Enviar convite</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </x-import>
+  <div style="font-size:12px;color:var(--color-neutral-400)">Trilha — protótipo mobile-first</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROLE_LABEL = { owner: 'Dono', editor: 'Editor', viewer: 'Somente leitura' };
+const ROLE_TAG = { owner: 'tag-accent', editor: 'tag-neutral', viewer: 'tag-outline' };
+
+const TRIPS_BASE = {
+  1: {
+    title: 'Patagônia', location: 'Argentina & Chile', dates: '12–24 nov 2026', coverId: 'cover-1', myRole: 'owner',
+    members: [
+      { name: 'Você', role: 'owner', initials: 'VC' },
+      { name: 'Marina Alves', role: 'editor', initials: 'MA' },
+      { name: 'Diego Souza', role: 'editor', initials: 'DS' },
+      { name: 'Julia Ramos', role: 'viewer', initials: 'JR' },
+    ],
+    entries: [
+      { type: 'photo', category: 'visitar', slotId: 'p1-e1', caption: 'Fitz Roy visto de El Chaltén — referência para o mirante da Laguna de los Tres', author: 'Você' },
+      { type: 'text', category: 'visitar', title: 'Trilha Laguna de los Tres', body: '20km ida e volta, nível moderado. Melhor horário: sair ao amanhecer para evitar o vento forte na subida final e pegar o reflexo do Fitz Roy na laguna.', author: 'Marina Alves' },
+      { type: 'link', category: 'visitar', slotId: 'p1-e3', platform: 'YouTube', title: 'Como é fazer a trilha da Laguna de los Tres', author: 'Diego Souza' },
+      { type: 'photo', category: 'visitar', slotId: 'p1-e4', caption: 'Torres del Paine — opção de mirante para o pôr do sol', author: 'Marina Alves' },
+      { type: 'text', category: 'comer', title: 'La Tapera (El Chaltén)', body: 'Recomendado para cordeiro patagônico antes da trilha. Costuma ter fila — melhor chegar assim que abre.', author: 'Você' },
+      { type: 'text', category: 'hospedagem', title: 'Refúgio Los Cuernos', body: 'Opção de hospedagem dentro do Parque Torres del Paine. Reservar com antecedência — vagas limitadas na alta temporada.', author: 'Diego Souza' },
+      { type: 'link', category: 'transporte', slotId: 'p1-e5', platform: 'TikTok', title: 'Dica de equipamento para frio extremo', author: 'Você' },
+    ],
+    expenses: [
+      { desc: 'Passagem aérea BUE–EZE', amount: 2380, paidBy: 'Você', receipt: true, category: 'Transporte' },
+      { desc: 'Aluguel de carro 4x4', amount: 940, paidBy: 'Marina Alves', receipt: true, category: 'Transporte' },
+      { desc: 'Ingresso Parque Torres del Paine', amount: 120, paidBy: 'Diego Souza', receipt: false, category: 'Passeios' },
+      { desc: 'Refúgio Los Cuernos (2 noites)', amount: 610, paidBy: 'Você', receipt: true, category: 'Hospedagem' },
+      { desc: 'Mercado para a trilha', amount: 185, paidBy: 'Marina Alves', receipt: false, category: 'Alimentação' },
+    ],
+    messages: [
+      { author: 'Marina Alves', initials: 'MA', type: 'text', text: 'Gente, achei um vídeo bom sobre a trilha, já coloquei em Descobertas!', time: 'ontem 14:32' },
+      { author: 'Você', initials: 'VC', type: 'text', text: 'Perfeito, vi que o refúgio ainda tem vaga pros dias 15 e 16', time: 'ontem 14:40' },
+      { author: 'Diego Souza', initials: 'DS', type: 'image', slotId: 'chat-p1-1', caption: 'Previsão do tempo pra semana da trilha', time: 'ontem 18:05' },
+      { author: 'Diego Souza', initials: 'DS', type: 'audio', duration: '0:42', time: 'ontem 18:07' },
+    ],
+  },
+  2: {
+    title: 'Lisboa & Porto', location: 'Portugal', dates: '3–10 jan 2027', coverId: 'cover-2', myRole: 'editor',
+    members: [
+      { name: 'Ana Costa', role: 'owner', initials: 'AC' },
+      { name: 'Você', role: 'editor', initials: 'VC' },
+      { name: 'Rui Pinto', role: 'editor', initials: 'RP' },
+    ],
+    entries: [
+      { type: 'photo', category: 'visitar', slotId: 'p2-e1', caption: 'Elétrico 28 — trajeto que passa pela Alfama, bom programa pro primeiro dia', author: 'Ana Costa' },
+      { type: 'text', category: 'comer', title: 'Cervejaria Ramiro', body: 'Reservar para o segundo dia — chegar antes das 19h para não pegar fila.', author: 'Você' },
+      { type: 'link', category: 'visitar', slotId: 'p2-e3', platform: 'Instagram', title: 'Miradouros escondidos em Lisboa', author: 'Rui Pinto' },
+    ],
+    expenses: [
+      { desc: 'Airbnb Alfama (5 noites)', amount: 780, paidBy: 'Ana Costa', receipt: true, category: 'Hospedagem' },
+      { desc: 'Trem Lisboa–Porto', amount: 95, paidBy: 'Você', receipt: false, category: 'Transporte' },
+    ],
+    messages: [
+      { author: 'Ana Costa', initials: 'AC', type: 'text', text: 'Consegui reserva no Airbnb da Alfama, já confirmei as datas', time: 'seg 09:14' },
+      { author: 'Rui Pinto', initials: 'RP', type: 'text', text: 'Boa! Vou ver trens pra Porto na quinta', time: 'seg 09:20' },
+    ],
+  },
+  3: {
+    title: 'Kyoto no Outono', location: 'Japão', dates: '18–27 out 2026', coverId: 'cover-3', myRole: 'viewer',
+    members: [
+      { name: 'Felipe Nogueira', role: 'owner', initials: 'FN' },
+      { name: 'Bianca Lima', role: 'editor', initials: 'BL' },
+      { name: 'Você', role: 'viewer', initials: 'VC' },
+      { name: 'Tomás Ferreira', role: 'editor', initials: 'TF' },
+      { name: 'Carla Duarte', role: 'viewer', initials: 'CD' },
+    ],
+    entries: [
+      { type: 'photo', category: 'visitar', slotId: 'p3-e1', caption: 'Arashiyama no outono — época das folhas de bordo', author: 'Bianca Lima' },
+      { type: 'link', category: 'visitar', slotId: 'p3-e2', platform: 'YouTube', title: 'Melhor época para ver o momiji em Kyoto', author: 'Felipe Nogueira' },
+    ],
+    expenses: [
+      { desc: 'JR Pass 7 dias', amount: 1450, paidBy: 'Felipe Nogueira', receipt: true, category: 'Transporte' },
+      { desc: 'Ryokan em Gion (3 noites)', amount: 2100, paidBy: 'Bianca Lima', receipt: true, category: 'Hospedagem' },
+    ],
+    messages: [
+      { author: 'Felipe Nogueira', initials: 'FN', type: 'text', text: 'Confirmei o ryokan em Gion pras 3 noites', time: 'sex 11:02' },
+    ],
+  },
+};
+
+function fmt(n) {
+  return 'R$ ' + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+class Component extends DCLogic {
+  state = {
+    screen: 'login', tripId: null, tripTab: 'overview', homeTab: 'viagens',
+    showAddContent: false, contentType: 'foto',
+    showAddExpense: false, expenseHasReceipt: false,
+    showInvite: false, inviteRole: 'editor',
+    customEntries: {}, customExpenses: {}, customMembers: {}, customTrips: [], customMessages: {},
+  };
+
+  handleLogin = (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ screen: 'home', homeTab: 'viagens' }); };
+  logout = () => this.setState({ screen: 'login' });
+  goHome = () => this.setState({ screen: 'home', tripId: null, homeTab: 'viagens' });
+  openTrip = (id) => this.setState({ screen: 'trip', tripId: id, tripTab: 'overview' });
+  setTab = (tab) => this.setState({ tripTab: tab });
+  setHomeTab = (tab) => this.setState({ homeTab: tab });
+  stopProp = (e) => e.stopPropagation();
+
+  openChat = () => this.setState({ screen: 'chat' });
+  closeChat = () => this.setState({ screen: 'trip' });
+  addChatImage = () => {
+    const id = this.state.tripId;
+    const msg = { author: 'Você', initials: 'VC', type: 'image', slotId: `chat-custom-${Date.now()}`, caption: '', time: 'agora' };
+    this.setState((s) => ({ customMessages: { ...s.customMessages, [id]: [...(s.customMessages[id] || []), msg] } }));
+  };
+  addChatAudio = () => {
+    const id = this.state.tripId;
+    const msg = { author: 'Você', initials: 'VC', type: 'audio', duration: '0:1' + Math.floor(Math.random() * 8 + 1), time: 'agora' };
+    this.setState((s) => ({ customMessages: { ...s.customMessages, [id]: [...(s.customMessages[id] || []), msg] } }));
+  };
+  sendChatText = () => {
+    const id = this.state.tripId;
+    const el = document.getElementById('chat-text');
+    const text = el ? el.value.trim() : '';
+    if (!text) return;
+    const msg = { author: 'Você', initials: 'VC', type: 'text', text, time: 'agora' };
+    this.setState((s) => ({ customMessages: { ...s.customMessages, [id]: [...(s.customMessages[id] || []), msg] } }));
+    if (el) el.value = '';
+  };
+  handleChatKeyDown = (e) => { if (e.key === 'Enter') this.sendChatText(); };
+
+  openNewTrip = () => this.setState({ screen: 'newTrip' });
+  submitNewTrip = () => {
+    const val = (sel) => { const el = document.getElementById(sel); return el ? el.value : ''; };
+    const fmtDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '';
+    const start = val('new-trip-start'), end = val('new-trip-end');
+    const dates = (start && end) ? `${fmtDate(start)} – ${fmtDate(end)}` : 'Datas a definir';
+    const id = `custom-${Date.now()}`;
+    const trip = {
+      title: val('new-trip-title') || 'Nova viagem', location: val('new-trip-location') || 'Local a definir',
+      dates, coverId: id, myRole: 'owner',
+      members: [{ name: 'Você', role: 'owner', initials: 'VC' }], entries: [], expenses: [],
+    };
+    this.setState((s) => ({ customTrips: [...s.customTrips, { id, ...trip }], screen: 'home', homeTab: 'viagens' }));
+  };
+
+  openAddContent = () => this.setState({ showAddContent: true, contentType: 'foto' });
+  closeAddContent = () => this.setState({ showAddContent: false });
+  setContentType = (t) => this.setState({ contentType: t });
+  submitAddContent = () => {
+    const id = this.state.tripId, type = this.state.contentType;
+    const val = (sel) => { const el = document.getElementById(sel); return el ? el.value : ''; };
+    const category = val('new-category') || 'visitar';
+    let entry;
+    if (type === 'foto') entry = { type: 'photo', category, slotId: `custom-${id}-${Date.now()}`, caption: val('new-caption') || 'Nova foto', author: 'Você' };
+    else if (type === 'texto') entry = { type: 'text', category, title: val('new-title') || 'Nova nota', body: val('new-body') || '', author: 'Você' };
+    else entry = { type: 'link', category, slotId: `custom-link-${id}-${Date.now()}`, platform: val('new-platform') || 'Outro', title: val('new-linktitle') || 'Novo link', author: 'Você' };
+    this.setState((s) => ({ customEntries: { ...s.customEntries, [id]: [...(s.customEntries[id] || []), entry] }, showAddContent: false }));
+  };
+
+  openAddExpense = () => this.setState({ showAddExpense: true, expenseHasReceipt: false });
+  closeAddExpense = () => this.setState({ showAddExpense: false });
+  toggleExpenseReceipt = () => this.setState((s) => ({ expenseHasReceipt: !s.expenseHasReceipt }));
+  submitAddExpense = () => {
+    const id = this.state.tripId;
+    const val = (sel) => { const el = document.getElementById(sel); return el ? el.value : ''; };
+    const amount = parseFloat(val('exp-amount')) || 0;
+    const expense = { desc: val('exp-desc') || 'Novo gasto', amount, paidBy: val('exp-paidby') || 'Você', receipt: this.state.expenseHasReceipt, category: val('exp-category') || 'Outros' };
+    this.setState((s) => ({ customExpenses: { ...s.customExpenses, [id]: [...(s.customExpenses[id] || []), expense] }, showAddExpense: false }));
+  };
+
+  openInvite = () => this.setState({ showInvite: true, inviteRole: 'editor' });
+  closeInvite = () => this.setState({ showInvite: false });
+  setInviteRole = (r) => this.setState({ inviteRole: r });
+  submitInvite = () => {
+    const id = this.state.tripId;
+    const val = (sel) => { const el = document.getElementById(sel); return el ? el.value : ''; };
+    const email = val('invite-email') || 'novo@email.com';
+    const rawName = email.split('@')[0].replace(/[._]/g, ' ');
+    const name = rawName.replace(/\b\w/g, (c) => c.toUpperCase());
+    const initials = name.split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase() || 'NA';
+    const member = { name, role: this.state.inviteRole, initials };
+    this.setState((s) => ({ customMembers: { ...s.customMembers, [id]: [...(s.customMembers[id] || []), member] }, showInvite: false }));
+  };
+
+  renderVals() {
+    const s = this.state;
+
+    const getBase = (id) => TRIPS_BASE[id] || s.customTrips.find((t) => t.id === id);
+    const allIds = [...Object.keys(TRIPS_BASE), ...s.customTrips.map((t) => t.id)];
+
+    const trips = allIds.map((id) => {
+      const t = getBase(id);
+      return {
+        id, title: t.title, location: t.location, dates: t.dates, coverId: t.coverId,
+        coverPlaceholder: 'Foto de capa da viagem', role: ROLE_LABEL[t.myRole], roleTagClass: ROLE_TAG[t.myRole],
+        open: () => this.openTrip(id),
+      };
+    });
+
+    let currentTrip = null;
+    if (s.tripId) {
+      const base = getBase(s.tripId);
+      const entriesRaw = [...base.entries, ...(s.customEntries[s.tripId] || [])];
+      const entries = entriesRaw.map((e, i) => ({ ...e, isPhoto: e.type === 'photo', isText: e.type === 'text', isLink: e.type === 'link', slotId: e.slotId || `entry-${s.tripId}-${i}` }));
+      const CATS = [{ key: 'visitar', label: 'Visitar' }, { key: 'comer', label: 'Comer & beber' }, { key: 'hospedagem', label: 'Hospedagem' }, { key: 'transporte', label: 'Transporte' }];
+      const categories = CATS.map((c) => ({ label: c.label, items: entries.filter((e) => (e.category || 'visitar') === c.key) })).filter((c) => c.items.length > 0);
+      const messagesRaw = [...(base.messages || []), ...(s.customMessages[s.tripId] || [])];
+      const messages = messagesRaw.map((m) => ({ ...m, isText: m.type === 'text', isImage: m.type === 'image', isAudio: m.type === 'audio' }));
+      const expensesRaw = [...base.expenses, ...(s.customExpenses[s.tripId] || [])];
+      const expenses = expensesRaw.map((e) => ({ ...e, amountFormatted: fmt(e.amount) }));
+      const membersRaw = [...base.members, ...(s.customMembers[s.tripId] || [])];
+      const members = membersRaw.map((m) => ({ ...m, roleLabel: ROLE_LABEL[m.role], isOwner: m.role === 'owner', isNotOwner: m.role !== 'owner' }));
+      const total = expensesRaw.reduce((sum, e) => sum + e.amount, 0);
+      const per = members.length ? total / members.length : 0;
+      const paidMap = {};
+      expensesRaw.forEach((e) => { paidMap[e.paidBy] = (paidMap[e.paidBy] || 0) + e.amount; });
+      const balances = members.map((m) => {
+        const diff = (paidMap[m.name] || 0) - per;
+        let label, color;
+        if (Math.abs(diff) < 1) { label = 'quitado'; color = 'var(--color-neutral-600)'; }
+        else if (diff > 0) { label = `recebe ${fmt(diff)}`; color = 'var(--color-accent-700)'; }
+        else { label = `deve ${fmt(-diff)}`; color = 'var(--color-text)'; }
+        return { name: m.name, label, color };
+      });
+      currentTrip = {
+        title: base.title, location: base.location, dates: base.dates, coverId: base.coverId,
+        roleLabel: ROLE_LABEL[base.myRole], roleTagClass: ROLE_TAG[base.myRole],
+        canEdit: base.myRole !== 'viewer', canManageMembers: base.myRole === 'owner', isReadOnly: base.myRole === 'viewer',
+        entries, categories, expenses, members, messages, memberCount: members.length, totalFormatted: fmt(total), balances,
+      };
+    }
+
+    return {
+      isLogin: s.screen === 'login', isHome: s.screen === 'home', isTrip: s.screen === 'trip' && !!currentTrip,
+      isNewTrip: s.screen === 'newTrip', isChat: s.screen === 'chat' && !!currentTrip,
+      openChat: this.openChat, closeChat: this.closeChat,
+      addChatImage: this.addChatImage, addChatAudio: this.addChatAudio,
+      sendChatText: this.sendChatText, handleChatKeyDown: this.handleChatKeyDown,
+      isHomeTabViagens: s.homeTab === 'viagens', isHomeTabPerfil: s.homeTab === 'perfil',
+      homeTabViagensColor: s.homeTab === 'viagens' ? 'var(--color-accent)' : 'var(--color-neutral-500)',
+      homeTabPerfilColor: s.homeTab === 'perfil' ? 'var(--color-accent)' : 'var(--color-neutral-500)',
+      setHomeTabViagens: () => this.setHomeTab('viagens'), setHomeTabPerfil: () => this.setHomeTab('perfil'),
+      openNewTrip: this.openNewTrip, submitNewTrip: this.submitNewTrip, logout: this.logout,
+      trips, currentTrip,
+      isOverviewTab: s.tripTab === 'overview', isExpensesTab: s.tripTab === 'expenses', isMembersTab: s.tripTab === 'members',
+      handleLogin: this.handleLogin, goHome: this.goHome,
+      setTabOverview: () => this.setTab('overview'), setTabExpenses: () => this.setTab('expenses'), setTabMembers: () => this.setTab('members'),
+      openAddContent: this.openAddContent, closeAddContent: this.closeAddContent, submitAddContent: this.submitAddContent,
+      showAddContent: s.showAddContent,
+      contentTypeFoto: s.contentType === 'foto', contentTypeTexto: s.contentType === 'texto', contentTypeLink: s.contentType === 'link',
+      setContentTypeFoto: () => this.setContentType('foto'), setContentTypeTexto: () => this.setContentType('texto'), setContentTypeLink: () => this.setContentType('link'),
+      showAddExpense: s.showAddExpense, openAddExpense: this.openAddExpense, closeAddExpense: this.closeAddExpense, submitAddExpense: this.submitAddExpense,
+      expenseHasReceipt: s.expenseHasReceipt, toggleExpenseReceipt: this.toggleExpenseReceipt,
+      showInvite: s.showInvite, openInvite: this.openInvite, closeInvite: this.closeInvite, submitInvite: this.submitInvite,
+      inviteRoleEditor: s.inviteRole === 'editor', inviteRoleViewer: s.inviteRole === 'viewer',
+      setInviteRoleEditor: () => this.setInviteRole('editor'), setInviteRoleViewer: () => this.setInviteRole('viewer'),
+      stopProp: this.stopProp,
+    };
+  }
+}
+</script>
+</body>
+</html>
