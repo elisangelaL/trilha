@@ -3,6 +3,7 @@ import * as itemModel from "../models/tripEntryItem.model";
 import * as reactionModel from "../models/entryReaction.model";
 import { getProfilesMap } from "./profile.service";
 import { uploadFile, deleteFileByPublicUrl, type UploadableFile } from "./storage.service";
+import { fetchThumbnailForUrl } from "./linkPreview.service";
 import { ApiError } from "../utils/ApiError";
 import type { TripRole } from "../models/tripMember.model";
 
@@ -37,6 +38,7 @@ export interface EntryItemDTO {
   url: string | null;
   platform: string | null;
   mediaUrl: string | null;
+  thumbnailUrl: string | null;
   authorId: string;
   author: string;
   createdAt: string;
@@ -78,6 +80,7 @@ function toItemDTO(row: itemModel.TripEntryItemRow, authorName: string): EntryIt
     url: row.url,
     platform: row.platform,
     mediaUrl: row.media_url,
+    thumbnailUrl: row.thumbnail_url,
     authorId: row.author_id,
     author: authorName,
     createdAt: row.created_at,
@@ -98,7 +101,9 @@ function summarize(
   authorInitials: string,
   reactions: ReactionSummary,
 ): EntrySummaryDTO {
-  const firstMedia = items.find((i) => (i.type === "photo" || i.type === "video" || i.type === "link") && i.media_url);
+  const firstMedia = items.find(
+    (i) => (i.type === "photo" || i.type === "video" || i.type === "link") && (i.media_url || i.thumbnail_url),
+  );
   const first = items[0];
 
   return {
@@ -106,7 +111,7 @@ function summarize(
     category: entry.category,
     itemCount: items.length,
     previewType: first?.type ?? null,
-    previewMediaUrl: firstMedia?.media_url ?? null,
+    previewMediaUrl: firstMedia ? firstMedia.media_url ?? firstMedia.thumbnail_url : null,
     previewMediaType: firstMedia ? (firstMedia.type === "video" ? "video" : "photo") : null,
     previewText: first ? previewTextFor(first) : null,
     authorId: entry.author_id,
@@ -249,6 +254,11 @@ export async function addItem(
     mediaUrl = await uploadFile(`entries/${tripId}/${entryId}`, input.media);
   }
 
+  let thumbnailUrl: string | null = null;
+  if (!mediaUrl && input.type === "link" && input.url) {
+    thumbnailUrl = await fetchThumbnailForUrl(input.url);
+  }
+
   const row = await itemModel.createItem({
     entryId,
     tripId,
@@ -260,6 +270,7 @@ export async function addItem(
     url: input.url,
     platform: input.platform,
     mediaUrl,
+    thumbnailUrl,
   });
 
   const profiles = await getProfilesMap([row.author_id]);

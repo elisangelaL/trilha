@@ -14,6 +14,7 @@ export interface TripEntryItemRow {
   url: string | null;
   platform: string | null;
   media_url: string | null;
+  thumbnail_url: string | null;
   created_at: string;
 }
 
@@ -28,6 +29,7 @@ export interface NewTripEntryItem {
   url?: string | null;
   platform?: string | null;
   mediaUrl?: string | null;
+  thumbnailUrl?: string | null;
 }
 
 export interface EntryItemPatch {
@@ -84,6 +86,7 @@ export async function createItem(input: NewTripEntryItem): Promise<TripEntryItem
       url: input.url ?? null,
       platform: input.platform ?? null,
       media_url: input.mediaUrl ?? null,
+      thumbnail_url: input.thumbnailUrl ?? null,
     })
     .select("*")
     .single();

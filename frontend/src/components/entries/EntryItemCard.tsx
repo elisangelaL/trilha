@@ -2,12 +2,19 @@ import { ImageSlot } from "../ui/ImageSlot";
 import { VideoSlot } from "../ui/VideoSlot";
 import { Tag } from "../ui/Tag";
 import { Button } from "../ui/Button";
-import { LinkIcon, PencilIcon, UserIcon } from "../ui/icons";
+import { LinkIcon, ExternalLinkIcon, PencilIcon, UserIcon } from "../ui/icons";
 import type { EntryItem } from "../../types";
 
 export function EntryItemCard({ item, canEdit, onEdit }: { item: EntryItem; canEdit?: boolean; onEdit?: () => void }) {
   const editButton = canEdit ? (
-    <Button variant="icon" title="Editar" onClick={onEdit}>
+    <Button
+      variant="icon"
+      title="Editar"
+      onClick={(e) => {
+        e.stopPropagation();
+        onEdit?.();
+      }}
+    >
       <PencilIcon size={14} />
     </Button>
   ) : null;
@@ -91,10 +98,19 @@ export function EntryItemCard({ item, canEdit, onEdit }: { item: EntryItem; canE
     );
   }
 
+  function openLink() {
+    if (item.url) window.open(item.url, "_blank", "noopener,noreferrer");
+  }
+
   return (
-    <div className="card" style={{ flexDirection: "row", padding: 0, overflow: "hidden" }}>
+    <div
+      className="card"
+      style={{ flexDirection: "row", padding: 0, overflow: "hidden", cursor: item.url ? "pointer" : undefined }}
+      onClick={openLink}
+      title={item.url ?? undefined}
+    >
       <div style={{ width: 96, height: 96, flex: "none" }}>
-        <ImageSlot src={item.mediaUrl} placeholder="thumb" height={96} />
+        <ImageSlot src={item.mediaUrl ?? item.thumbnailUrl} placeholder="thumb" height={96} />
       </div>
       <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 4, justifyContent: "center", minWidth: 0, flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -105,9 +121,17 @@ export function EntryItemCard({ item, canEdit, onEdit }: { item: EntryItem; canE
           {editButton}
         </div>
         <div className="card-title" style={{ fontSize: 14 }}>{item.title}</div>
-        <div className="card-meta">
-          <UserIcon size={11} />
-          {item.author}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <div className="card-meta">
+            <UserIcon size={11} />
+            {item.author}
+          </div>
+          {item.url && (
+            <span className="text-muted" style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11 }}>
+              <ExternalLinkIcon size={12} />
+              Abrir link
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -326,6 +326,21 @@ textarea.input { min-height: 90px; resize: vertical; }
   color: var(--color-neutral-500);
 }
 .bottom-nav-item.active { color: var(--color-accent); }
+.bottom-nav-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin-top: -28px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
 .entry-action-btn {
   display: inline-flex;
   align-items: center;

@@ -26,6 +26,7 @@ export interface EntryItem {
   url: string | null;
   platform: string | null;
   mediaUrl: string | null;
+  thumbnailUrl: string | null;
   authorId: string;
   author: string;
   createdAt: string;

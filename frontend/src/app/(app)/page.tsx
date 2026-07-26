@@ -5,13 +5,11 @@ import { useAuth } from "../../hooks/useAuth";
 import { useTrips } from "../../hooks/useTrips";
 import { TripCard } from "../../components/trips/TripCard";
 import { BottomNav } from "../../components/ui/BottomNav";
-import { Button } from "../../components/ui/Button";
 import { Avatar } from "../../components/ui/Avatar";
-import { LogoIcon, PlusIcon } from "../../components/ui/icons";
+import { LogoIcon } from "../../components/ui/icons";
 
 function ViagensTab() {
   const { trips, loading, error } = useTrips();
-  const router = useRouter();
 
   return (
     <>
@@ -24,15 +22,6 @@ function ViagensTab() {
           <TripCard key={trip.id} trip={trip} />
         ))}
       </div>
-      <Button
-        variant="primary"
-        className="btn-icon"
-        style={{ position: "absolute", right: 20, bottom: 88, width: 52, height: 52, boxShadow: "var(--shadow-md)" }}
-        title="Nova viagem"
-        onClick={() => router.push("/nova-viagem")}
-      >
-        <PlusIcon size={22} />
-      </Button>
     </>
   );
 }
@@ -57,11 +46,16 @@ export default function HomePage() {
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px 100px", position: "relative" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px", position: "relative" }}>
         <ViagensTab />
       </div>
 
-      <BottomNav active="viagens" onChange={(tab) => tab === "perfil" && router.push("/perfil")} />
+      <BottomNav
+        active="viagens"
+        onChange={(tab) => tab === "perfil" && router.push("/perfil")}
+        onAdd={() => router.push("/nova-viagem")}
+        addLabel="Nova viagem"
+      />
     </div>
   );
 }
