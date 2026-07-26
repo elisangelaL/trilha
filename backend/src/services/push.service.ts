@@ -3,7 +3,16 @@ import * as pushModel from "../models/pushSubscription.model";
 import * as memberModel from "../models/tripMember.model";
 import { env } from "../config/env";
 
-webpush.setVapidDetails(env.VAPID_SUBJECT, env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
+// As chaves VAPID podem não estar configuradas (ex.: variável de ambiente não definida no
+// deploy). Nesse caso o recurso de push fica desativado (best-effort) em vez de derrubar o
+// processo inteiro — sem isso, TODA rota da API ficava fora do ar por causa só do push.
+const pushEnabled = Boolean(env.VAPID_SUBJECT && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY);
+
+if (pushEnabled) {
+  webpush.setVapidDetails(env.VAPID_SUBJECT!, env.VAPID_PUBLIC_KEY!, env.VAPID_PRIVATE_KEY!);
+} else {
+  console.warn("VAPID_* não configuradas — notificações push desativadas.");
+}
 
 export interface PushSubscriptionInput {
   endpoint: string;
@@ -26,6 +35,8 @@ export interface NotifyPayload {
 
 /** Notifica os outros membros da viagem por push. Best-effort: nunca deve derrubar quem chamou. */
 export async function notifyTripMembers(tripId: string, excludeUserId: string, payload: NotifyPayload): Promise<void> {
+  if (!pushEnabled) return;
+
   const members = await memberModel.listMembers(tripId);
   const targetUserIds = members.map((m) => m.user_id).filter((id) => id !== excludeUserId);
   if (targetUserIds.length === 0) return;
