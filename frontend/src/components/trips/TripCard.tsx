@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ImageSlot } from "../ui/ImageSlot";
 import { RoleTag } from "../ui/Tag";
 import { MapPinIcon, CalendarIcon } from "../ui/icons";
-import { formatDateRange } from "../../lib/format";
+import { formatDateRange, mapsUrlForLocation } from "../../lib/format";
 import type { Trip } from "../../types";
 
 export function TripCard({ trip }: { trip: Trip }) {
@@ -22,10 +22,17 @@ export function TripCard({ trip }: { trip: Trip }) {
           <RoleTag role={trip.role} />
         </div>
         <div className="card-title">{trip.title}</div>
-        <div className="card-meta">
+        <a
+          href={mapsUrlForLocation(trip.location)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="card-meta"
+          style={{ textDecoration: "underline", textUnderlineOffset: 2, width: "fit-content" }}
+        >
           <MapPinIcon size={12} />
           {trip.location}
-        </div>
+        </a>
         <div className="card-meta">
           <CalendarIcon size={12} />
           {formatDateRange(trip.startDate, trip.endDate)}

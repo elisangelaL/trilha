@@ -20,7 +20,7 @@ import { AddExpenseDialog } from "../../../../components/expenses/AddExpenseDial
 import { MemberRow } from "../../../../components/members/MemberRow";
 import { InviteDialog } from "../../../../components/members/InviteDialog";
 import { MapPinIcon, CalendarIcon, ChatIcon, MoreVerticalIcon, PlusIcon, UsersIcon } from "../../../../components/ui/icons";
-import { formatDateRange } from "../../../../lib/format";
+import { formatDateRange, mapsUrlForLocation } from "../../../../lib/format";
 import { ENTRY_CATEGORY_LABELS } from "../../../../lib/entryCategories";
 import type { EntryCategory } from "../../../../types";
 
@@ -81,10 +81,16 @@ export default function TripDetailPage() {
         <div style={{ padding: "16px 16px 8px" }}>
           <RoleTag role={trip.role} />
           <h2 style={{ margin: "10px 0 6px" }}>{trip.title}</h2>
-          <div className="card-meta" style={{ marginBottom: 3 }}>
+          <a
+            href={mapsUrlForLocation(trip.location)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card-meta"
+            style={{ marginBottom: 3, textDecoration: "underline", textUnderlineOffset: 2, width: "fit-content" }}
+          >
             <MapPinIcon size={13} />
             {trip.location}
-          </div>
+          </a>
           <div className="card-meta">
             <CalendarIcon size={13} />
             {formatDateRange(trip.startDate, trip.endDate)}

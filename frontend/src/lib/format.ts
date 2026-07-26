@@ -1,5 +1,9 @@
 import type { BalanceStatus } from "../types";
 
+export function mapsUrlForLocation(location: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 export function formatCurrency(value: number): string {
   return "R$ " + (value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
