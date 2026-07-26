@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch, apiUpload } from "../lib/apiClient";
+import { apiFetch, apiUpload, ApiRequestError } from "../lib/apiClient";
 import { applyReactionOptimistically } from "../lib/reactions";
 import type { EntryCategory, EntryDetail, EntrySummary, EntryType, ReactionType } from "../types";
 
@@ -70,5 +70,18 @@ export function useEntries(tripId: string) {
     }
   }
 
-  return { entries, loading, error, refresh, addEntry, react };
+  async function deleteEntry(entryId: string) {
+    // Remove otimisticamente — deixa a UI instantânea e evita reaparecer se o usuário sair da tela antes do refresh.
+    setEntries((prev) => prev.filter((e) => e.id !== entryId));
+    try {
+      await apiFetch(`/trips/${tripId}/entries/${entryId}`, { method: "DELETE" });
+    } catch (err) {
+      if (!(err instanceof ApiRequestError && err.status === 404)) {
+        await refresh();
+        throw err;
+      }
+    }
+  }
+
+  return { entries, loading, error, refresh, addEntry, react, deleteEntry };
 }

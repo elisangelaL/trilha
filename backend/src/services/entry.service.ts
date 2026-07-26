@@ -2,8 +2,9 @@ import * as entryModel from "../models/tripEntry.model";
 import * as itemModel from "../models/tripEntryItem.model";
 import * as reactionModel from "../models/entryReaction.model";
 import { getProfilesMap } from "./profile.service";
-import { uploadFile, type UploadableFile } from "./storage.service";
+import { uploadFile, deleteFileByPublicUrl, type UploadableFile } from "./storage.service";
 import { ApiError } from "../utils/ApiError";
+import type { TripRole } from "../models/tripMember.model";
 
 export type ReactionType = reactionModel.ReactionType;
 
@@ -49,6 +50,7 @@ export interface EntrySummaryDTO {
   previewMediaUrl: string | null;
   previewMediaType: "photo" | "video" | null;
   previewText: string | null;
+  authorId: string;
   author: string;
   authorInitials: string;
   createdAt: string;
@@ -60,6 +62,7 @@ export interface EntrySummaryDTO {
 export interface EntryDetailDTO {
   id: string;
   category: entryModel.EntryCategory;
+  authorId: string;
   author: string;
   createdAt: string;
   items: EntryItemDTO[];
@@ -82,7 +85,8 @@ function toItemDTO(row: itemModel.TripEntryItemRow, authorName: string): EntryIt
 }
 
 function previewTextFor(item: itemModel.TripEntryItemRow): string | null {
-  if (item.type === "text") return item.title || item.body;
+  // No texto, o corpo é o conteúdo que realmente precisa de resumo/"mostrar mais" — o título já é curto por natureza.
+  if (item.type === "text") return item.body || item.title;
   if (item.type === "link") return item.title || item.platform;
   return item.caption;
 }
@@ -94,7 +98,7 @@ function summarize(
   authorInitials: string,
   reactions: ReactionSummary,
 ): EntrySummaryDTO {
-  const firstMedia = items.find((i) => (i.type === "photo" || i.type === "video") && i.media_url);
+  const firstMedia = items.find((i) => (i.type === "photo" || i.type === "video" || i.type === "link") && i.media_url);
   const first = items[0];
 
   return {
@@ -103,8 +107,9 @@ function summarize(
     itemCount: items.length,
     previewType: first?.type ?? null,
     previewMediaUrl: firstMedia?.media_url ?? null,
-    previewMediaType: firstMedia ? (firstMedia.type as "photo" | "video") : null,
+    previewMediaType: firstMedia ? (firstMedia.type === "video" ? "video" : "photo") : null,
     previewText: first ? previewTextFor(first) : null,
+    authorId: entry.author_id,
     author: authorName,
     authorInitials,
     createdAt: entry.created_at,
@@ -172,10 +177,30 @@ export async function getEntryDetail(tripId: string, entryId: string): Promise<E
   return {
     id: entry.id,
     category: entry.category,
+    authorId: entry.author_id,
     author: profiles.get(entry.author_id)?.name ?? "Usuário",
     createdAt: entry.created_at,
     items: items.map((item) => toItemDTO(item, profiles.get(item.author_id)?.name ?? "Usuário")),
   };
+}
+
+/** Só o autor da descoberta ou o dono da viagem podem apagá-la. Remove também os arquivos de mídia dos itens. */
+export async function deleteEntry(tripId: string, entryId: string, userId: string, userRole: TripRole): Promise<void> {
+  const entry = await entryModel.findEntryById(tripId, entryId);
+  if (!entry) throw ApiError.notFound("Descoberta não encontrada");
+
+  if (entry.author_id !== userId && userRole !== "owner") {
+    throw ApiError.forbidden("Você só pode apagar descobertas que você mesmo publicou");
+  }
+
+  const items = await itemModel.listItems(entryId);
+  await entryModel.deleteEntry(tripId, entryId);
+
+  await Promise.all(
+    items
+      .filter((item) => item.media_url)
+      .map((item) => deleteFileByPublicUrl(item.media_url!).catch(() => undefined)),
+  );
 }
 
 export interface NewItemInput {

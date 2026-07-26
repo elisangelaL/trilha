@@ -1,4 +1,4 @@
-const CACHE_NAME = "trilha-cache-v2";
+const CACHE_NAME = "trilha-cache-v3";
 const APP_SHELL = ["/", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -30,27 +30,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (request.mode === "navigate") {
+  // Só arquivos com hash de build no nome (imutáveis) valem cache-first.
+  const isImmutableStatic = url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/");
+
+  if (isImmutableStatic) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/"))),
+        });
+      }),
     );
     return;
   }
 
+  // Tudo mais — navegação de página, payloads RSC do App Router (fetch de client-side
+  // navigation), manifest, etc. — sempre tenta a rede primeiro. Sem isso, qualquer uma
+  // dessas respostas fica cacheada indefinidamente e a página/dado nunca atualiza sozinho.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         return response;
-      });
-    }),
+      })
+      .catch(() => caches.match(request).then((cached) => cached || (request.mode === "navigate" ? caches.match("/") : undefined))),
   );
 });

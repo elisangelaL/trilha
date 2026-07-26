@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "../../../../hooks/useAuth";
 import { useTripDetail } from "../../../../hooks/useTripDetail";
 import { useEntries } from "../../../../hooks/useEntries";
 import { useExpenses } from "../../../../hooks/useExpenses";
@@ -30,6 +31,7 @@ export default function TripDetailPage() {
   const tripId = params.id;
   const router = useRouter();
 
+  const { session } = useAuth();
   const { trip, loading: tripLoading } = useTripDetail(tripId);
   const entriesState = useEntries(tripId);
   const expensesState = useExpenses(tripId);
@@ -108,17 +110,18 @@ export default function TripDetailPage() {
               <div key={cat.key} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <h6 style={{ margin: "6px 0 -2px", color: "var(--color-accent-700)" }}>{cat.label}</h6>
                 {cat.items.map((entry) => (
-                  <EntryCard key={entry.id} tripId={tripId} entry={entry} onReact={entriesState.react} />
+                  <EntryCard
+                    key={entry.id}
+                    tripId={tripId}
+                    entry={entry}
+                    onReact={entriesState.react}
+                    canDelete={entry.authorId === session?.user.id || trip.role === "owner"}
+                    onDelete={entriesState.deleteEntry}
+                  />
                 ))}
               </div>
             ))}
             {categories.length === 0 && <p className="text-muted">Nenhuma descoberta ainda.</p>}
-            {canEdit && (
-              <Button variant="secondary" block onClick={() => setShowAddEntry(true)}>
-                <PlusIcon size={16} />
-                Adicionar descoberta
-              </Button>
-            )}
             {!canEdit && (
               <Tag variant="neutral">Somente leitura</Tag>
             )}
@@ -159,6 +162,18 @@ export default function TripDetailPage() {
           </div>
         )}
       </div>
+
+      {tab === "overview" && canEdit && (
+        <Button
+          variant="primary"
+          className="btn-icon"
+          style={{ position: "absolute", right: 20, bottom: 20, width: 52, height: 52, boxShadow: "var(--shadow-md)" }}
+          title="Adicionar descoberta"
+          onClick={() => setShowAddEntry(true)}
+        >
+          <PlusIcon size={22} />
+        </Button>
+      )}
 
       {showAddEntry && (
         <AddEntryDialog onClose={() => setShowAddEntry(false)} onSubmit={entriesState.addEntry} />

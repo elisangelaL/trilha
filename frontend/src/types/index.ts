@@ -41,6 +41,7 @@ export interface EntrySummary {
   previewMediaUrl: string | null;
   previewMediaType: "photo" | "video" | null;
   previewText: string | null;
+  authorId: string;
   author: string;
   authorInitials: string;
   createdAt: string;
@@ -52,6 +53,7 @@ export interface EntrySummary {
 export interface EntryDetail {
   id: string;
   category: EntryCategory;
+  authorId: string;
   author: string;
   createdAt: string;
   items: EntryItem[];

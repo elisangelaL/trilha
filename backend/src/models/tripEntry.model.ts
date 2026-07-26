@@ -21,7 +21,7 @@ export async function listEntries(tripId: string): Promise<TripEntryRow[]> {
     .from("trip_entries")
     .select("*")
     .eq("trip_id", tripId)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
 }
@@ -45,4 +45,9 @@ export async function createEntry(input: NewTripEntry): Promise<TripEntryRow> {
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function deleteEntry(tripId: string, entryId: string): Promise<void> {
+  const { error } = await supabaseAdmin.from("trip_entries").delete().eq("trip_id", tripId).eq("id", entryId);
+  if (error) throw error;
 }

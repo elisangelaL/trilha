@@ -31,7 +31,7 @@ export function AddItemDialog({ onClose, onSubmit }: { onClose: () => void; onSu
       } else if (type === "text") {
         await onSubmit({ type, title, body });
       } else {
-        await onSubmit({ type, platform, url, title: linkTitle });
+        await onSubmit({ type, platform, url, title: linkTitle, media });
       }
       onClose();
     } catch (err) {
@@ -108,6 +108,9 @@ export function AddItemDialog({ onClose, onSubmit }: { onClose: () => void; onSu
           </Field>
           <Field label="Título">
             <Input value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Do que se trata?" />
+          </Field>
+          <Field label="Imagem de capa (opcional)">
+            <ImageSlot placeholder="Adicionar uma imagem de prévia" height={130} onFileSelect={setMedia} />
           </Field>
         </>
       )}

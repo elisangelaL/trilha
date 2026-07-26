@@ -39,7 +39,7 @@ export function AddEntryDialog({ onClose, onSubmit }: { onClose: () => void; onS
       } else if (type === "text") {
         await onSubmit({ type, category, title, body });
       } else {
-        await onSubmit({ type, category, platform, url, title: linkTitle });
+        await onSubmit({ type, category, platform, url, title: linkTitle, media });
       }
       onClose();
     } catch (err) {
@@ -124,6 +124,9 @@ export function AddEntryDialog({ onClose, onSubmit }: { onClose: () => void; onS
           </Field>
           <Field label="Título">
             <Input value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Do que se trata?" />
+          </Field>
+          <Field label="Imagem de capa (opcional)">
+            <ImageSlot placeholder="Adicionar uma imagem de prévia" height={130} onFileSelect={setMedia} />
           </Field>
         </>
       )}

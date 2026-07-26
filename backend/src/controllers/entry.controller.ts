@@ -86,3 +86,9 @@ export const reactToEntry = asyncHandler(async (req: Request, res: Response) => 
   const reactions = await entryService.reactToEntry(req.params.tripId, req.params.entryId, req.user.id, type);
   res.json({ reactions });
 });
+
+export const deleteEntry = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user || !req.tripRole) throw ApiError.unauthorized();
+  await entryService.deleteEntry(req.params.tripId, req.params.entryId, req.user.id, req.tripRole);
+  res.status(204).send();
+});
