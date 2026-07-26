@@ -11,9 +11,6 @@ function supabaseHostname(): string | undefined {
 const hostname = supabaseHostname();
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: __dirname,
-  },
   images: {
     remotePatterns: [
       {
