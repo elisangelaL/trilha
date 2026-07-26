@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useTripDetail } from "../../../../hooks/useTripDetail";
-import { useEntries } from "../../../../hooks/useEntries";
+import { useEntries, type NewEntryInput } from "../../../../hooks/useEntries";
 import { useExpenses } from "../../../../hooks/useExpenses";
 import { useMembers } from "../../../../hooks/useMembers";
 import { TopNav } from "../../../../components/ui/TopNav";
@@ -41,6 +41,21 @@ export default function TripDetailPage() {
   const [showAddEntry, setShowAddEntry] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const justAddedEntryIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const id = justAddedEntryIdRef.current;
+    if (!id) return;
+    if (!entriesState.entries.some((e) => e.id === id)) return;
+    document.getElementById(`entry-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    justAddedEntryIdRef.current = null;
+  }, [entriesState.entries]);
+
+  async function handleAddEntry(input: NewEntryInput) {
+    const entry = await entriesState.addEntry(input);
+    justAddedEntryIdRef.current = entry.id;
+    return entry;
+  }
 
   if (tripLoading || !trip) {
     return (
@@ -116,14 +131,15 @@ export default function TripDetailPage() {
               <div key={cat.key} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <h6 style={{ margin: "6px 0 -2px", color: "var(--color-accent-700)" }}>{cat.label}</h6>
                 {cat.items.map((entry) => (
-                  <EntryCard
-                    key={entry.id}
-                    tripId={tripId}
-                    entry={entry}
-                    onReact={entriesState.react}
-                    canDelete={entry.authorId === session?.user.id || trip.role === "owner"}
-                    onDelete={entriesState.deleteEntry}
-                  />
+                  <div key={entry.id} id={`entry-${entry.id}`}>
+                    <EntryCard
+                      tripId={tripId}
+                      entry={entry}
+                      onReact={entriesState.react}
+                      canDelete={entry.authorId === session?.user.id || trip.role === "owner"}
+                      onDelete={entriesState.deleteEntry}
+                    />
+                  </div>
                 ))}
               </div>
             ))}
@@ -182,7 +198,7 @@ export default function TripDetailPage() {
       )}
 
       {showAddEntry && (
-        <AddEntryDialog onClose={() => setShowAddEntry(false)} onSubmit={entriesState.addEntry} />
+        <AddEntryDialog onClose={() => setShowAddEntry(false)} onSubmit={handleAddEntry} />
       )}
       {showAddExpense && (
         <AddExpenseDialog members={membersState.members} onClose={() => setShowAddExpense(false)} onSubmit={expensesState.addExpense} />
