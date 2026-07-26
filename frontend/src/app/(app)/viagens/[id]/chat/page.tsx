@@ -44,6 +44,7 @@ export default function ChatPage() {
             key={message.id}
             message={message}
             tripId={tripId}
+            isOwn={message.authorId === currentUserId}
             canDelete={message.authorId === currentUserId || trip?.role === "owner"}
             canEdit={message.authorId === currentUserId}
             onDelete={() => void deleteMessage(message.id)}

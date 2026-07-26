@@ -3,23 +3,66 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { apiUpload, ApiRequestError } from "../../../lib/apiClient";
+import { isPushSupported, getExistingPushSubscription, subscribeToPush, unsubscribeFromPush } from "../../../lib/push";
 import { TopNav } from "../../../components/ui/TopNav";
 import { Avatar } from "../../../components/ui/Avatar";
 import { Button } from "../../../components/ui/Button";
 import { ArrowRightIcon, CameraIcon } from "../../../components/ui/icons";
 import type { Profile } from "../../../types";
 
+type NotifState = "loading" | "unsupported" | "blocked" | "off" | "on";
+
 export default function PerfilPage() {
   const { profile, signOut, refreshProfile } = useAuth();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notifState, setNotifState] = useState<NotifState>("loading");
+  const [notifError, setNotifError] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    void (async () => {
+      if (!isPushSupported()) {
+        setNotifState("unsupported");
+        return;
+      }
+      if (Notification.permission === "denied") {
+        setNotifState("blocked");
+        return;
+      }
+      const subscription = await getExistingPushSubscription();
+      setNotifState(subscription ? "on" : "off");
+    })();
+  }, []);
+
+  async function handleToggleNotifications() {
+    setNotifError(null);
+    try {
+      if (notifState === "on") {
+        await unsubscribeFromPush();
+        setNotifState("off");
+      } else {
+        await subscribeToPush();
+        setNotifState("on");
+      }
+    } catch (err) {
+      setNotifError(err instanceof Error ? err.message : "Não foi possível atualizar as notificações");
+    }
+  }
+
+  const notifLabel: Record<NotifState, string> = {
+    loading: "Notificações",
+    unsupported: "Notificações indisponíveis neste navegador",
+    blocked: "Notificações bloqueadas — ative nas configurações do navegador",
+    off: "Ativar notificações",
+    on: "Desativar notificações",
+  };
 
   async function handleFileChange(file: File | undefined) {
     if (!file) return;
@@ -68,7 +111,15 @@ export default function PerfilPage() {
         <div className="hr" style={{ margin: "0 0 16px" }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <Button variant="secondary" block disabled>Editar perfil</Button>
-          <Button variant="secondary" block disabled>Notificações</Button>
+          <Button
+            variant="secondary"
+            block
+            disabled={notifState === "loading" || notifState === "unsupported" || notifState === "blocked"}
+            onClick={() => void handleToggleNotifications()}
+          >
+            {notifLabel[notifState]}
+          </Button>
+          {notifError && <span style={{ fontSize: 12, color: "var(--color-accent)" }}>{notifError}</span>}
           <Button variant="secondary" block disabled>Ajuda e suporte</Button>
           <Button variant="secondary" block onClick={() => void signOut()} style={{ color: "var(--color-accent-700)" }}>
             <ArrowRightIcon size={16} />

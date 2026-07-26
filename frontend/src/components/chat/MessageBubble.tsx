@@ -6,7 +6,7 @@ import { Avatar } from "../ui/Avatar";
 import { ImageSlot } from "../ui/ImageSlot";
 import { Input } from "../ui/Field";
 import { Button } from "../ui/Button";
-import { PauseIcon, PencilIcon, PlayIcon, TrashIcon } from "../ui/icons";
+import { CheckIcon, PauseIcon, PencilIcon, PlayIcon, TrashIcon } from "../ui/icons";
 import { formatRelativeTime } from "../../lib/format";
 import { ENTRY_CATEGORY_LABELS } from "../../lib/entryCategories";
 import type { Message } from "../../types";
@@ -36,6 +36,7 @@ function formatClock(seconds: number): string {
 export function MessageBubble({
   message,
   tripId,
+  isOwn,
   canDelete,
   canEdit,
   onDelete,
@@ -43,6 +44,7 @@ export function MessageBubble({
 }: {
   message: Message;
   tripId: string;
+  isOwn: boolean;
   canDelete?: boolean;
   canEdit?: boolean;
   onDelete?: () => void;
@@ -91,193 +93,241 @@ export function MessageBubble({
     }
   }
 
-  return (
-    <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--color-divider)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <Avatar initials={message.authorInitials} size={26} />
-        <span style={{ fontSize: 13, fontWeight: 600 }}>{message.author}</span>
-        <span className="text-muted" style={{ fontSize: 11, marginLeft: "auto" }}>{formatRelativeTime(message.createdAt)}</span>
-      </div>
+  const bubbleColor = isOwn ? "var(--color-accent)" : "var(--color-surface)";
+  const textColor = isOwn ? "#fff" : "var(--color-text)";
+  const metaColor = isOwn ? "rgba(255,255,255,0.75)" : "var(--color-neutral-500)";
 
-      {message.type === "text" && !isEditing && (
-        <div style={{ marginLeft: 34 }}>
-          <p style={{ margin: 0, fontSize: 14 }}>
-            {message.text}
-            {message.editedAt && <span className="text-muted" style={{ fontSize: 11 }}> (editado)</span>}
-          </p>
-          {(canEdit || canDelete) && (
-            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-              {canEdit && (
-                <button
-                  onClick={() => {
-                    setDraft(message.text ?? "");
-                    setIsEditing(true);
-                  }}
-                  className="text-muted"
-                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4, padding: 0 }}
-                >
-                  <PencilIcon size={11} /> editar
-                </button>
-              )}
+  const footer = (
+    <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 3, marginTop: 3 }}>
+      {message.editedAt && <span style={{ fontSize: 10, color: metaColor }}>editado ·</span>}
+      <span style={{ fontSize: 10, color: metaColor }}>{formatRelativeTime(message.createdAt)}</span>
+      {isOwn && <CheckIcon size={12} stroke={metaColor} />}
+    </div>
+  );
+
+  const editDeleteRow = (canEdit || canDelete) && !isEditing && (
+    <div style={{ display: "flex", gap: 10, marginTop: 3, justifyContent: isOwn ? "flex-end" : "flex-start" }}>
+      {canEdit && (
+        <button
+          onClick={() => {
+            setDraft(message.text ?? "");
+            setIsEditing(true);
+          }}
+          className="text-muted"
+          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+        >
+          <PencilIcon size={11} /> editar
+        </button>
+      )}
+      {canDelete && (
+        <button
+          onClick={onDelete}
+          className="text-muted"
+          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+        >
+          <TrashIcon size={11} /> apagar
+        </button>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", gap: 8, padding: "4px 16px", justifyContent: isOwn ? "flex-end" : "flex-start" }}>
+      {!isOwn && <Avatar initials={message.authorInitials} size={26} />}
+
+      <div style={{ maxWidth: "78%", display: "flex", flexDirection: "column" }}>
+        {!isOwn && (
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-accent)", marginBottom: 2, marginLeft: 10 }}>{message.author}</span>
+        )}
+
+        {message.type === "text" && !isEditing && (
+          <div
+            style={{
+              background: bubbleColor,
+              color: textColor,
+              borderRadius: 14,
+              borderBottomRightRadius: isOwn ? 3 : 14,
+              borderBottomLeftRadius: isOwn ? 14 : 3,
+              padding: "8px 10px",
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 14 }}>{message.text}</p>
+            {footer}
+          </div>
+        )}
+
+        {message.type === "text" && isEditing && (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <Input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && void handleSave()}
+              autoFocus
+              style={{ flex: 1 }}
+            />
+            <Button variant="primary" loading={saving} onClick={handleSave}>Salvar</Button>
+            <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancelar</Button>
+          </div>
+        )}
+
+        {message.type === "image" && (
+          <div
+            style={{
+              background: bubbleColor,
+              borderRadius: 14,
+              borderBottomRightRadius: isOwn ? 3 : 14,
+              borderBottomLeftRadius: isOwn ? 14 : 3,
+              padding: 6,
+              width: 200,
+            }}
+          >
+            <div style={{ position: "relative" }}>
+              <ImageSlot src={message.mediaUrl} placeholder="Foto compartilhada" height={130} borderRadius={10} />
               {canDelete && (
-                <button
+                <Button
+                  variant="icon"
+                  title="Apagar foto"
                   onClick={onDelete}
-                  className="text-muted"
-                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    background: "color-mix(in srgb, var(--color-neutral-900) 70%, transparent)",
+                    width: 28,
+                    height: 28,
+                  }}
                 >
-                  <TrashIcon size={11} /> apagar
-                </button>
+                  <TrashIcon size={14} style={{ color: "#fff" }} />
+                </Button>
               )}
             </div>
-          )}
-        </div>
-      )}
+            <div style={{ padding: "2px 4px 0" }}>{footer}</div>
+          </div>
+        )}
 
-      {message.type === "text" && isEditing && (
-        <div style={{ marginLeft: 34, display: "flex", gap: 8, alignItems: "center" }}>
-          <Input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && void handleSave()}
-            autoFocus
-            style={{ flex: 1 }}
-          />
-          <Button variant="primary" loading={saving} onClick={handleSave}>Salvar</Button>
-          <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancelar</Button>
-        </div>
-      )}
-
-      {message.type === "image" && (
-        <div style={{ marginLeft: 34, width: 200, position: "relative" }}>
-          <ImageSlot src={message.mediaUrl} placeholder="Foto compartilhada" height={130} borderRadius={10} />
-          {canDelete && (
-            <Button
-              variant="icon"
-              title="Apagar foto"
-              onClick={onDelete}
+        {message.type === "audio" && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: bubbleColor,
+              borderRadius: 14,
+              borderBottomRightRadius: isOwn ? 3 : 14,
+              borderBottomLeftRadius: isOwn ? 14 : 3,
+              padding: "8px 12px",
+              width: 260,
+            }}
+          >
+            {message.mediaUrl && (
+              <audio
+                ref={audioRef}
+                src={message.mediaUrl}
+                preload="metadata"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => {
+                  setIsPlaying(false);
+                  setCurrentTime(0);
+                }}
+                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onLoadedMetadata={(e) => {
+                  if (isFinite(e.currentTarget.duration)) setTotalDuration(e.currentTarget.duration);
+                }}
+                style={{ display: "none" }}
+              />
+            )}
+            <button
+              onClick={togglePlayback}
+              disabled={!message.mediaUrl}
               style={{
-                position: "absolute",
-                top: 6,
-                right: 6,
-                background: "color-mix(in srgb, var(--color-neutral-900) 70%, transparent)",
-                width: 28,
-                height: 28,
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: isOwn ? "rgba(255,255,255,0.25)" : "var(--color-accent)",
+                border: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: "none",
+                cursor: message.mediaUrl ? "pointer" : "default",
+                padding: 0,
               }}
             >
-              <TrashIcon size={14} style={{ color: "#fff" }} />
-            </Button>
-          )}
-        </div>
-      )}
-
-      {message.type === "audio" && (
-        <div style={{ marginLeft: 34, display: "flex", alignItems: "center", gap: 10, background: "var(--color-surface)", padding: "8px 12px", width: 260 }}>
-          {message.mediaUrl && (
-            <audio
-              ref={audioRef}
-              src={message.mediaUrl}
-              preload="metadata"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => {
-                setIsPlaying(false);
-                setCurrentTime(0);
-              }}
-              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-              onLoadedMetadata={(e) => {
-                if (isFinite(e.currentTarget.duration)) setTotalDuration(e.currentTarget.duration);
-              }}
-              style={{ display: "none" }}
-            />
-          )}
-          <button
-            onClick={togglePlayback}
-            disabled={!message.mediaUrl}
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: "50%",
-              background: "var(--color-accent)",
-              border: "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flex: "none",
-              cursor: message.mediaUrl ? "pointer" : "default",
-              padding: 0,
-            }}
-          >
-            {isPlaying ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
-          </button>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div onClick={seek} style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 24, cursor: message.mediaUrl ? "pointer" : "default" }}>
-              {waveform.map((h, i) => {
-                const played = totalDuration > 0 && i / waveform.length < currentTime / totalDuration;
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      width: 3,
-                      flex: "none",
-                      height: `${h * 100}%`,
-                      borderRadius: 2,
-                      background: played ? "var(--color-accent)" : "var(--color-neutral-600)",
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
-              <span className="text-muted" style={{ fontSize: 10 }}>{formatClock(currentTime)}</span>
-              <span className="text-muted" style={{ fontSize: 10 }}>{formatClock(totalDuration)}</span>
-            </div>
-          </div>
-          {canDelete && (
-            <Button variant="icon" title="Apagar áudio" onClick={onDelete} style={{ width: 24, height: 24, flex: "none" }}>
-              <TrashIcon size={12} />
-            </Button>
-          )}
-        </div>
-      )}
-
-      {message.type === "entry" && message.sharedEntry && (
-        <div style={{ marginLeft: 34, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
-          {message.text && <p style={{ margin: 0, fontSize: 14 }}>{message.text}</p>}
-          <button
-            onClick={() => router.push(`/viagens/${tripId}/descobertas/${message.sharedEntry!.id}`)}
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              background: "var(--color-surface)",
-              border: "none",
-              padding: 10,
-              width: 240,
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ width: 44, height: 44, flex: "none", overflow: "hidden" }}>
-              <ImageSlot src={message.sharedEntry.previewMediaUrl} placeholder="" height={44} />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600 }}>{ENTRY_CATEGORY_LABELS[message.sharedEntry.category]}</div>
-              <div className="text-muted" style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {message.sharedEntry.previewText || "Descoberta compartilhada"}
+              {isPlaying ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+            </button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div onClick={seek} style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 24, cursor: message.mediaUrl ? "pointer" : "default" }}>
+                {waveform.map((h, i) => {
+                  const played = totalDuration > 0 && i / waveform.length < currentTime / totalDuration;
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        width: 3,
+                        flex: "none",
+                        height: `${h * 100}%`,
+                        borderRadius: 2,
+                        background: played ? (isOwn ? "#fff" : "var(--color-accent)") : isOwn ? "rgba(255,255,255,0.35)" : "var(--color-neutral-600)",
+                      }}
+                    />
+                  );
+                })}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
+                <span style={{ fontSize: 10, color: metaColor }}>{formatClock(currentTime)}</span>
+                <span style={{ fontSize: 10, color: metaColor }}>{formatClock(totalDuration)}</span>
               </div>
             </div>
-          </button>
-          {canDelete && (
+          </div>
+        )}
+
+        {message.type === "entry" && message.sharedEntry && (
+          <div
+            style={{
+              background: bubbleColor,
+              color: textColor,
+              borderRadius: 14,
+              borderBottomRightRadius: isOwn ? 3 : 14,
+              borderBottomLeftRadius: isOwn ? 14 : 3,
+              padding: 8,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            {message.text && <p style={{ margin: 0, fontSize: 14 }}>{message.text}</p>}
             <button
-              onClick={onDelete}
-              className="text-muted"
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 4, padding: 0 }}
+              onClick={() => router.push(`/viagens/${tripId}/descobertas/${message.sharedEntry!.id}`)}
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                background: isOwn ? "rgba(255,255,255,0.15)" : "var(--color-neutral-900)",
+                border: "none",
+                padding: 8,
+                width: 224,
+                cursor: "pointer",
+                textAlign: "left",
+                borderRadius: 8,
+              }}
             >
-              <TrashIcon size={11} /> apagar
+              <div style={{ width: 44, height: 44, flex: "none", overflow: "hidden", borderRadius: 6 }}>
+                <ImageSlot src={message.sharedEntry.previewMediaUrl} placeholder="" height={44} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: textColor }}>{ENTRY_CATEGORY_LABELS[message.sharedEntry.category]}</div>
+                <div style={{ fontSize: 11, color: metaColor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {message.sharedEntry.previewText || "Descoberta compartilhada"}
+                </div>
+              </div>
             </button>
-          )}
-        </div>
-      )}
+            {footer}
+          </div>
+        )}
+
+        {editDeleteRow}
+      </div>
     </div>
   );
 }

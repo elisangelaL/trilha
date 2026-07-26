@@ -253,6 +253,14 @@ export function ShareIcon(props: IconProps) {
   );
 }
 
+export function CheckIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
 export function PauseIcon(props: IconProps) {
   const { size = 20, ...rest } = props;
   return (

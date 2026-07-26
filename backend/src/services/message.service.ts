@@ -2,8 +2,17 @@ import * as messageModel from "../models/tripMessage.model";
 import { getProfilesMap } from "./profile.service";
 import { uploadFile, deleteFileByPublicUrl, type UploadableFile } from "./storage.service";
 import { listEntries, type EntrySummaryDTO } from "./entry.service";
+import { notifyTripMembers } from "./push.service";
+import { env } from "../config/env";
 import { ApiError } from "../utils/ApiError";
 import type { TripRole } from "../models/tripMember.model";
+
+function previewForPush(row: messageModel.TripMessageRow): string {
+  if (row.type === "text") return row.text ?? "";
+  if (row.type === "image") return "enviou uma foto";
+  if (row.type === "audio") return "enviou um áudio";
+  return "compartilhou uma descoberta";
+}
 
 export interface MessageDTO {
   id: string;
@@ -94,6 +103,13 @@ export async function createMessage(input: CreateMessageInput): Promise<MessageD
     const entries = await listEntries(input.tripId, input.authorId);
     sharedEntry = entries.find((e) => e.id === row.shared_entry_id) ?? null;
   }
+
+  // Best-effort — nunca deve falhar a criação da mensagem por causa de push.
+  void notifyTripMembers(input.tripId, input.authorId, {
+    title: profile?.name ?? "Nova mensagem",
+    body: previewForPush(row),
+    url: `${env.corsOrigins[0]}/viagens/${input.tripId}/chat`,
+  }).catch((err) => console.error("Falha ao notificar membros por push:", err));
 
   return toDTO(row, profile?.name ?? "Usuário", profile?.initials ?? "??", sharedEntry);
 }

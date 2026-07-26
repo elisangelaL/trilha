@@ -2,6 +2,8 @@ import * as memberModel from "../models/tripMember.model";
 import * as inviteModel from "../models/tripInvite.model";
 import { findProfileByEmail } from "../models/profile.model";
 import { getProfilesMap } from "./profile.service";
+import { supabaseAdmin } from "../config/supabase";
+import { env } from "../config/env";
 import { ApiError } from "../utils/ApiError";
 
 export interface MemberDTO {
@@ -57,6 +59,14 @@ export async function invite(input: InviteInput): Promise<InviteResult> {
   }
 
   await inviteModel.createInvite(input.tripId, input.email, input.role, input.invitedBy);
+
+  // Best-effort: o convite já está salvo mesmo se o e-mail falhar (ex.: pessoa já tem conta
+  // no Auth por algum outro motivo). O Supabase dispara o e-mail de convite/definição de senha.
+  const { error: inviteEmailError } = await supabaseAdmin.auth.admin.inviteUserByEmail(input.email, {
+    redirectTo: `${env.corsOrigins[0]}/redefinir-senha`,
+  });
+  if (inviteEmailError) console.error("Falha ao enviar e-mail de convite:", inviteEmailError.message);
+
   return { status: "invite_pending" };
 }
 

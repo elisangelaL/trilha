@@ -8,6 +8,9 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   STORAGE_BUCKET: z.string().default("trip-media"),
+  VAPID_PUBLIC_KEY: z.string().min(1),
+  VAPID_PRIVATE_KEY: z.string().min(1),
+  VAPID_SUBJECT: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);
