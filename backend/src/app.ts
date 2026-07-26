@@ -19,7 +19,11 @@ export function createApp() {
   app.use(morgan("dev"));
   app.use(express.json());
 
+  // Local (npm run dev): o frontend chama http://localhost:4000/api/...
+  // Vercel (produção): a rewrite de "services" encaminha /api/backend/* preservando
+  // o caminho original, então o Express também precisa reconhecer esse prefixo.
   app.use("/api", routes);
+  app.use("/api/backend", routes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

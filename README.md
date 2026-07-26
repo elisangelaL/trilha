@@ -54,6 +54,21 @@ npm run dev             # http://localhost:3000
 - `frontend/public/sw.js` é um service worker simples (cache-first para assets estáticos, network-first com fallback offline para navegação); registrado por `components/ServiceWorkerRegister.tsx`.
 - Para testar a instalação: rode `npm run build && npm run start` (o service worker só é realmente exercitado em produção/HTTPS) e use "Adicionar à tela de início" no Chrome (Android) ou Safari (iOS). Em localhost o Chrome trata como seguro para fins de teste.
 
+## Deploy na Vercel (monorepo com Services)
+
+O `vercel.json` na raiz define os dois serviços (`frontend` e `backend`) e as rewrites que expõem cada um sob o mesmo domínio — a Vercel exige esse arquivo pra habilitar o botão Deploy quando detecta múltiplos serviços no repositório.
+
+Detalhe importante: a rewrite `/api/backend(/.*)?` → serviço `backend` preserva o caminho original (a Vercel manda `/api/backend/trips`, não `/trips`), por isso o `backend/src/app.ts` monta as rotas em `/api` **e** `/api/backend` ao mesmo tempo — local continua em `/api`, produção passa a responder em `/api/backend` também.
+
+Variáveis de ambiente a configurar no painel da Vercel (Project Settings → Environment Variables), separadas por serviço:
+
+- **backend**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `STORAGE_BUCKET` (`trip-media`), `CORS_ORIGIN` (domínio de produção, ex: `https://trilha.vercel.app`).
+- **frontend**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, e `NEXT_PUBLIC_API_URL=/api/backend` (caminho relativo — como os dois serviços ficam no mesmo domínio, não precisa da URL completa nem lida com CORS).
+
+Sem essas variáveis o backend nem sobe (`config/env.ts` valida e lança erro na inicialização se faltar alguma).
+
+Depois do deploy, teste `https://<seu-domínio>/api/backend/health` — deve responder `{"status":"ok"}`. Se der 404, é sinal de que o rewrite ou o prefixo duplo não pegou.
+
 ## Notas e próximos passos
 
 - Autorização por papel (owner/editor/viewer) é aplicada tanto no backend (`middlewares/authorize.middleware.ts`) quanto via RLS no Postgres.
