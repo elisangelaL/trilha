@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../hooks/useAuth";
 import { useTrips } from "../../hooks/useTrips";
 import { TripCard } from "../../components/trips/TripCard";
-import { BottomNav, type HomeTab } from "../../components/ui/BottomNav";
+import { BottomNav } from "../../components/ui/BottomNav";
 import { Button } from "../../components/ui/Button";
 import { Avatar } from "../../components/ui/Avatar";
-import { LogoIcon, PlusIcon, ArrowRightIcon } from "../../components/ui/icons";
+import { LogoIcon, PlusIcon } from "../../components/ui/icons";
 
 function ViagensTab() {
   const { trips, loading, error } = useTrips();
@@ -38,32 +37,8 @@ function ViagensTab() {
   );
 }
 
-function PerfilTab() {
-  const { profile, signOut } = useAuth();
-
-  return (
-    <>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 0 24px" }}>
-        <Avatar initials={profile?.initials ?? "?"} size={72} />
-        <h3 style={{ margin: "8px 0 0" }}>{profile?.name ?? "Você"}</h3>
-        <div className="text-muted" style={{ fontSize: 13 }}>{profile?.email}</div>
-      </div>
-      <div className="hr" style={{ margin: "0 0 16px" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <Button variant="secondary" block disabled>Editar perfil</Button>
-        <Button variant="secondary" block disabled>Notificações</Button>
-        <Button variant="secondary" block disabled>Ajuda e suporte</Button>
-        <Button variant="secondary" block onClick={() => void signOut()} style={{ color: "var(--color-accent-700)" }}>
-          <ArrowRightIcon size={16} />
-          Sair da conta
-        </Button>
-      </div>
-    </>
-  );
-}
-
 export default function HomePage() {
-  const [tab, setTab] = useState<HomeTab>("viagens");
+  const router = useRouter();
   const { profile } = useAuth();
 
   return (
@@ -73,14 +48,20 @@ export default function HomePage() {
           <LogoIcon size={20} style={{ color: "var(--color-accent)" }} />
           Trilha
         </div>
-        <Avatar initials={profile?.initials ?? "?"} size={32} />
+        <button
+          onClick={() => router.push("/perfil")}
+          aria-label="Ver perfil"
+          style={{ background: "none", border: "none", padding: 0, cursor: "pointer", borderRadius: "50%", lineHeight: 0 }}
+        >
+          <Avatar initials={profile?.initials ?? "?"} src={profile?.avatarUrl} size={32} />
+        </button>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px 100px", position: "relative" }}>
-        {tab === "viagens" ? <ViagensTab /> : <PerfilTab />}
+        <ViagensTab />
       </div>
 
-      <BottomNav active={tab} onChange={setTab} />
+      <BottomNav active="viagens" onChange={(tab) => tab === "perfil" && router.push("/perfil")} />
     </div>
   );
 }

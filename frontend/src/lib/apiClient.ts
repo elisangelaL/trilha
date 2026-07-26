@@ -52,12 +52,12 @@ export async function apiFetch<T>(
   return handleResponse<T>(res);
 }
 
-/** POST multipart/form-data (upload de foto/recibo/áudio). */
-export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+/** POST/PATCH multipart/form-data (upload de foto/recibo/áudio). */
+export async function apiUpload<T>(path: string, formData: FormData, options: { method?: string } = {}): Promise<T> {
   const authHeader = await getAuthHeader();
 
   const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
+    method: options.method ?? "POST",
     headers: authHeader,
     body: formData,
   });

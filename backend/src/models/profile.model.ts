@@ -28,6 +28,12 @@ export async function findProfilesByIds(ids: string[]): Promise<ProfileRow[]> {
   return data ?? [];
 }
 
+export async function updateAvatarUrl(id: string, avatarUrl: string): Promise<ProfileRow> {
+  const { data, error } = await supabaseAdmin.from("profiles").update({ avatar_url: avatarUrl }).eq("id", id).select("*").single();
+  if (error) throw error;
+  return data;
+}
+
 /** Resolve convites pendentes para este e-mail em memberships reais (chamado no login). */
 export async function acceptPendingInvites(userId: string, email: string): Promise<void> {
   const { error } = await supabaseAdmin.rpc("accept_pending_invites", { p_user_id: userId, p_email: email });

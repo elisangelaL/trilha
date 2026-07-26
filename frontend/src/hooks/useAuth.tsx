@@ -15,6 +15,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -31,6 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // perfil ainda não propagado (trigger assíncrono) — tentaremos de novo no próximo evento
     }
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    const me = await apiFetch<Profile>("/auth/me");
+    setProfile(me);
   }, []);
 
   useEffect(() => {
@@ -83,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, signIn, signUp, signOut, resetPassword, updatePassword }}>
+    <AuthContext.Provider
+      value={{ session, profile, loading, signIn, signUp, signOut, resetPassword, updatePassword, refreshProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
