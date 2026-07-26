@@ -225,3 +225,13 @@ export function PlayIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function PauseIcon(props: IconProps) {
+  const { size = 20, ...rest } = props;
+  return (
+    <svg viewBox="0 0 24 24" fill="#fff" width={size} height={size} {...rest}>
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
+    </svg>
+  );
+}

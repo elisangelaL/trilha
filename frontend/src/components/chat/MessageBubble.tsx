@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Avatar } from "../ui/Avatar";
 import { ImageSlot } from "../ui/ImageSlot";
 import { Input } from "../ui/Field";
 import { Button } from "../ui/Button";
-import { PencilIcon, PlayIcon, TrashIcon } from "../ui/icons";
+import { PauseIcon, PencilIcon, PlayIcon, TrashIcon } from "../ui/icons";
 import { formatRelativeTime } from "../../lib/format";
 import type { Message } from "../../types";
 
@@ -25,6 +25,18 @@ export function MessageBubble({
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(message.text ?? "");
   const [saving, setSaving] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  function togglePlayback() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      void audio.play();
+    }
+  }
 
   async function handleSave() {
     const trimmed = draft.trim();
@@ -132,20 +144,36 @@ export function MessageBubble({
             width: "fit-content",
           }}
         >
-          <div
+          {message.mediaUrl && (
+            <audio
+              ref={audioRef}
+              src={message.mediaUrl}
+              preload="none"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+              style={{ display: "none" }}
+            />
+          )}
+          <button
+            onClick={togglePlayback}
+            disabled={!message.mediaUrl}
             style={{
               width: 26,
               height: 26,
               borderRadius: "50%",
               background: "var(--color-accent)",
+              border: "none",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flex: "none",
+              cursor: message.mediaUrl ? "pointer" : "default",
+              padding: 0,
             }}
           >
-            <PlayIcon size={12} />
-          </div>
+            {isPlaying ? <PauseIcon size={12} /> : <PlayIcon size={12} />}
+          </button>
           <span className="text-muted" style={{ fontSize: 11 }}>
             {message.durationSeconds ? `${Math.round(message.durationSeconds)}s` : "áudio"}
           </span>
