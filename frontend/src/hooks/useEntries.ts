@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, apiUpload } from "../lib/apiClient";
-import type { EntryCategory, EntryDetail, EntrySummary, EntryType } from "../types";
+import { applyReactionOptimistically } from "../lib/reactions";
+import type { EntryCategory, EntryDetail, EntrySummary, EntryType, ReactionType } from "../types";
 
 export interface NewEntryInput {
   type: EntryType;
@@ -55,5 +56,19 @@ export function useEntries(tripId: string) {
     return data.entry;
   }
 
-  return { entries, loading, error, refresh, addEntry };
+  async function react(entryId: string, type: ReactionType) {
+    setEntries((prev) => prev.map((e) => (e.id === entryId ? applyReactionOptimistically(e, type) : e)));
+    try {
+      const data = await apiFetch<{ reactions: { likeCount: number; dislikeCount: number; myReaction: ReactionType | null } }>(
+        `/trips/${tripId}/entries/${entryId}/reactions`,
+        { method: "POST", body: { type } },
+      );
+      setEntries((prev) => prev.map((e) => (e.id === entryId ? { ...e, ...data.reactions } : e)));
+    } catch (err) {
+      await refresh();
+      throw err;
+    }
+  }
+
+  return { entries, loading, error, refresh, addEntry, react };
 }

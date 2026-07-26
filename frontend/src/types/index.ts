@@ -31,15 +31,22 @@ export interface EntryItem {
   createdAt: string;
 }
 
+export type ReactionType = "like" | "dislike";
+
 export interface EntrySummary {
   id: string;
   category: EntryCategory;
   itemCount: number;
   previewType: EntryType | null;
-  previewPhotoUrl: string | null;
+  previewMediaUrl: string | null;
+  previewMediaType: "photo" | "video" | null;
   previewText: string | null;
   author: string;
+  authorInitials: string;
   createdAt: string;
+  likeCount: number;
+  dislikeCount: number;
+  myReaction: ReactionType | null;
 }
 
 export interface EntryDetail {
@@ -84,7 +91,7 @@ export interface Member {
   role: TripRole;
 }
 
-export type MessageType = "text" | "image" | "audio";
+export type MessageType = "text" | "image" | "audio" | "entry";
 
 export interface Message {
   id: string;
@@ -92,6 +99,7 @@ export interface Message {
   text: string | null;
   mediaUrl: string | null;
   durationSeconds: number | null;
+  sharedEntry: EntrySummary | null;
   authorId: string;
   author: string;
   authorInitials: string;

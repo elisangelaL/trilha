@@ -60,6 +60,11 @@ export function useChatMessages(tripId: string) {
     await refresh();
   }
 
+  async function sendSharedEntry(entryId: string, text?: string) {
+    await apiFetch(`/trips/${tripId}/messages`, { method: "POST", body: { type: "entry", sharedEntryId: entryId, text } });
+    await refresh();
+  }
+
   async function deleteMessage(messageId: string) {
     // Remove otimisticamente — evita clique duplo na mesma bolha e deixa a UI instantânea.
     setMessages((prev) => prev.filter((m) => m.id !== messageId));
@@ -78,5 +83,5 @@ export function useChatMessages(tripId: string) {
     await refresh();
   }
 
-  return { messages, loading, error, refresh, sendText, sendMedia, deleteMessage, editMessage };
+  return { messages, loading, error, refresh, sendText, sendMedia, sendSharedEntry, deleteMessage, editMessage };
 }

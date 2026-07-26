@@ -9,7 +9,8 @@ function fileFromRequest(req: Request) {
 }
 
 export const listEntries = asyncHandler(async (req: Request, res: Response) => {
-  const entries = await entryService.listEntries(req.params.tripId);
+  if (!req.user) throw ApiError.unauthorized();
+  const entries = await entryService.listEntries(req.params.tripId, req.user.id);
   res.json({ entries });
 });
 
@@ -77,4 +78,11 @@ export const updateItem = asyncHandler(async (req: Request, res: Response) => {
   });
 
   res.json({ item });
+});
+
+export const reactToEntry = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) throw ApiError.unauthorized();
+  const { type } = req.body;
+  const reactions = await entryService.reactToEntry(req.params.tripId, req.params.entryId, req.user.id, type);
+  res.json({ reactions });
 });

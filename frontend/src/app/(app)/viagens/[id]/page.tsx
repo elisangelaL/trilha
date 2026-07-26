@@ -108,7 +108,7 @@ export default function TripDetailPage() {
               <div key={cat.key} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <h6 style={{ margin: "6px 0 -2px", color: "var(--color-accent-700)" }}>{cat.label}</h6>
                 {cat.items.map((entry) => (
-                  <EntryCard key={entry.id} tripId={tripId} entry={entry} />
+                  <EntryCard key={entry.id} tripId={tripId} entry={entry} onReact={entriesState.react} />
                 ))}
               </div>
             ))}

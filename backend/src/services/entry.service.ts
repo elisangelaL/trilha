@@ -1,8 +1,31 @@
 import * as entryModel from "../models/tripEntry.model";
 import * as itemModel from "../models/tripEntryItem.model";
+import * as reactionModel from "../models/entryReaction.model";
 import { getProfilesMap } from "./profile.service";
 import { uploadFile, type UploadableFile } from "./storage.service";
 import { ApiError } from "../utils/ApiError";
+
+export type ReactionType = reactionModel.ReactionType;
+
+export interface ReactionSummary {
+  likeCount: number;
+  dislikeCount: number;
+  myReaction: ReactionType | null;
+}
+
+function summarizeReactions(reactions: reactionModel.ReactionRow[], userId: string): ReactionSummary {
+  let likeCount = 0;
+  let dislikeCount = 0;
+  let myReaction: ReactionType | null = null;
+
+  for (const reaction of reactions) {
+    if (reaction.type === "like") likeCount++;
+    else dislikeCount++;
+    if (reaction.user_id === userId) myReaction = reaction.type;
+  }
+
+  return { likeCount, dislikeCount, myReaction };
+}
 
 export interface EntryItemDTO {
   id: string;
@@ -23,10 +46,15 @@ export interface EntrySummaryDTO {
   category: entryModel.EntryCategory;
   itemCount: number;
   previewType: itemModel.EntryItemType | null;
-  previewPhotoUrl: string | null;
+  previewMediaUrl: string | null;
+  previewMediaType: "photo" | "video" | null;
   previewText: string | null;
   author: string;
+  authorInitials: string;
   createdAt: string;
+  likeCount: number;
+  dislikeCount: number;
+  myReaction: ReactionType | null;
 }
 
 export interface EntryDetailDTO {
@@ -59,8 +87,14 @@ function previewTextFor(item: itemModel.TripEntryItemRow): string | null {
   return item.caption;
 }
 
-function summarize(entry: entryModel.TripEntryRow, items: itemModel.TripEntryItemRow[], authorName: string): EntrySummaryDTO {
-  const firstPhoto = items.find((i) => i.type === "photo" && i.media_url);
+function summarize(
+  entry: entryModel.TripEntryRow,
+  items: itemModel.TripEntryItemRow[],
+  authorName: string,
+  authorInitials: string,
+  reactions: ReactionSummary,
+): EntrySummaryDTO {
+  const firstMedia = items.find((i) => (i.type === "photo" || i.type === "video") && i.media_url);
   const first = items[0];
 
   return {
@@ -68,17 +102,23 @@ function summarize(entry: entryModel.TripEntryRow, items: itemModel.TripEntryIte
     category: entry.category,
     itemCount: items.length,
     previewType: first?.type ?? null,
-    previewPhotoUrl: firstPhoto?.media_url ?? null,
+    previewMediaUrl: firstMedia?.media_url ?? null,
+    previewMediaType: firstMedia ? (firstMedia.type as "photo" | "video") : null,
     previewText: first ? previewTextFor(first) : null,
     author: authorName,
+    authorInitials,
     createdAt: entry.created_at,
+    likeCount: reactions.likeCount,
+    dislikeCount: reactions.dislikeCount,
+    myReaction: reactions.myReaction,
   };
 }
 
-export async function listEntries(tripId: string): Promise<EntrySummaryDTO[]> {
+export async function listEntries(tripId: string, userId: string): Promise<EntrySummaryDTO[]> {
   const entries = await entryModel.listEntries(tripId);
   const items = await itemModel.listItemsForEntries(entries.map((e) => e.id));
   const profiles = await getProfilesMap(entries.map((e) => e.author_id));
+  const reactions = await reactionModel.listReactionsForEntries(entries.map((e) => e.id));
 
   const itemsByEntry = new Map<string, itemModel.TripEntryItemRow[]>();
   for (const item of items) {
@@ -87,9 +127,39 @@ export async function listEntries(tripId: string): Promise<EntrySummaryDTO[]> {
     itemsByEntry.set(item.entry_id, list);
   }
 
+  const reactionsByEntry = new Map<string, reactionModel.ReactionRow[]>();
+  for (const reaction of reactions) {
+    const list = reactionsByEntry.get(reaction.entry_id) ?? [];
+    list.push(reaction);
+    reactionsByEntry.set(reaction.entry_id, list);
+  }
+
   return entries.map((entry) =>
-    summarize(entry, itemsByEntry.get(entry.id) ?? [], profiles.get(entry.author_id)?.name ?? "Usuário"),
+    summarize(
+      entry,
+      itemsByEntry.get(entry.id) ?? [],
+      profiles.get(entry.author_id)?.name ?? "Usuário",
+      profiles.get(entry.author_id)?.initials ?? "??",
+      summarizeReactions(reactionsByEntry.get(entry.id) ?? [], userId),
+    ),
   );
+}
+
+export async function reactToEntry(tripId: string, entryId: string, userId: string, type: ReactionType): Promise<ReactionSummary> {
+  const entry = await entryModel.findEntryById(tripId, entryId);
+  if (!entry) throw ApiError.notFound("Descoberta não encontrada");
+
+  const existing = await reactionModel.listReactionsForEntries([entryId]);
+  const mine = existing.find((r) => r.user_id === userId);
+
+  if (mine?.type === type) {
+    await reactionModel.deleteReaction(entryId, userId);
+  } else {
+    await reactionModel.upsertReaction(entryId, userId, type);
+  }
+
+  const updated = await reactionModel.listReactionsForEntries([entryId]);
+  return summarizeReactions(updated, userId);
 }
 
 export async function getEntryDetail(tripId: string, entryId: string): Promise<EntryDetailDTO> {
