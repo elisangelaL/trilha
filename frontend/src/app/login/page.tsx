@@ -4,8 +4,9 @@ import { useState, type FormEvent } from "react";
 import { GuestOnly } from "../../components/auth/AuthGuard";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "../../components/ui/Button";
-import { Field, Input } from "../../components/ui/Field";
+import { Field, Input, PasswordInput } from "../../components/ui/Field";
 import { LogoIcon, ArrowRightIcon } from "../../components/ui/icons";
+import { friendlyAuthError } from "../../lib/authErrors";
 
 type Mode = "login" | "signup";
 
@@ -33,7 +34,7 @@ function LoginForm() {
         setMode("login");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível concluir a ação");
+      setError(err instanceof Error ? friendlyAuthError(err.message) : "Não foi possível concluir a ação");
     } finally {
       setLoading(false);
     }
@@ -49,7 +50,7 @@ function LoginForm() {
       await resetPassword(email);
       setNotice("Enviamos um link de recuperação para o seu e-mail.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível enviar o e-mail de recuperação");
+      setError(err instanceof Error ? friendlyAuthError(err.message) : "Não foi possível enviar o e-mail de recuperação");
     }
   }
 
@@ -71,7 +72,7 @@ function LoginForm() {
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required />
         </Field>
         <Field label="Senha">
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
         </Field>
 
         {error && <div style={{ color: "var(--color-accent)", fontSize: 13 }}>{error}</div>}
