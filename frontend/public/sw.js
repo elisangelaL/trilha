@@ -1,4 +1,4 @@
-const CACHE_NAME = "trilha-cache-v1";
+const CACHE_NAME = "trilha-cache-v2";
 const APP_SHELL = ["/", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -24,8 +24,9 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Só cuida de GET no mesmo domínio — chamadas à API do backend (outra origem) passam direto.
-  if (request.method !== "GET" || url.origin !== self.location.origin) {
+  // Só cuida de GET no mesmo domínio. Chamadas à API (rewrite /api/backend no mesmo domínio em
+  // produção) nunca devem ser cacheadas, senão o feed/dados ficam presos na resposta antiga.
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
     return;
   }
 
