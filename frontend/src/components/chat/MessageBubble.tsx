@@ -93,7 +93,7 @@ export function MessageBubble({
     }
   }
 
-  const bubbleColor = isOwn ? "#E86C5D" : "var(--color-surface)";
+  const bubbleColor = isOwn ? "var(--color-accent)" : "var(--color-surface)";
   const textColor = isOwn ? "#fff" : "var(--color-text)";
   const metaColor = isOwn ? "rgba(255,255,255,0.75)" : "var(--color-neutral-500)";
 

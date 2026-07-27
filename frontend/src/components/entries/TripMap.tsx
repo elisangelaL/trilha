@@ -4,18 +4,11 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
-import { ENTRY_CATEGORY_LABELS } from "../../lib/entryCategories";
+import { ENTRY_CATEGORY_LABELS, ENTRY_CATEGORY_COLORS } from "../../lib/entryCategories";
 import type { EntryCategory, EntrySummary } from "../../types";
 
-const CATEGORY_COLORS: Record<EntryCategory, string> = {
-  visitar: "#E86C5D",
-  comer: "#e0a03c",
-  hospedagem: "#4f8fd6",
-  transporte: "#6c63c9",
-};
-
 function categoryIcon(category: EntryCategory) {
-  const color = CATEGORY_COLORS[category];
+  const color = ENTRY_CATEGORY_COLORS[category];
   return L.divIcon({
     className: "",
     html: `<div style="width:20px;height:20px;border-radius:50% 50% 50% 0;background:${color};transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,

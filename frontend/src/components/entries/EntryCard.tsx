@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ImageSlot } from "../ui/ImageSlot";
 import { VideoSlot } from "../ui/VideoSlot";
 import { Avatar } from "../ui/Avatar";
-import { Tag } from "../ui/Tag";
+import { CategoryTag } from "../ui/Tag";
 import { Button } from "../ui/Button";
 import { HeartIcon, ThumbsDownIcon, ShareIcon, LinkIcon, TrashIcon } from "../ui/icons";
 import { formatRelativeTime } from "../../lib/format";
@@ -83,7 +83,7 @@ export function EntryCard({
           <div style={{ fontSize: 13, fontWeight: 600 }}>{entry.author}</div>
           <div className="text-muted" style={{ fontSize: 11 }}>{formatRelativeTime(entry.createdAt)}</div>
         </div>
-        <Tag variant="outline">{ENTRY_CATEGORY_LABELS[entry.category]}</Tag>
+        <CategoryTag category={entry.category}>{ENTRY_CATEGORY_LABELS[entry.category]}</CategoryTag>
         {canDelete && (
           <Button variant="icon" title="Apagar descoberta" onClick={handleDelete} style={{ width: 28, height: 28 }}>
             <TrashIcon size={14} />

@@ -198,7 +198,7 @@ export default function TripDetailPage() {
         <Button
           variant="primary"
           className="btn-icon"
-          style={{ position: "absolute", right: 20, bottom: 20, width: 52, height: 52, boxShadow: "var(--shadow-md)" }}
+          style={{ position: "absolute", right: 20, bottom: 20, width: 52, height: 52, boxShadow: "var(--shadow-accent)" }}
           title="Adicionar descoberta"
           onClick={() => setShowAddEntry(true)}
         >
