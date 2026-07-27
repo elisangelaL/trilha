@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useTripDetail } from "../../../../hooks/useTripDetail";
@@ -24,7 +25,12 @@ import { formatDateRange, mapsUrlForLocation } from "../../../../lib/format";
 import { ENTRY_CATEGORY_LABELS } from "../../../../lib/entryCategories";
 import type { EntryCategory } from "../../../../types";
 
-type TripTab = "overview" | "expenses" | "members";
+const TripMap = dynamic(() => import("../../../../components/entries/TripMap").then((m) => m.TripMap), {
+  ssr: false,
+  loading: () => <p className="text-muted" style={{ padding: 16 }}>Carregando mapa...</p>,
+});
+
+type TripTab = "overview" | "map" | "expenses" | "members";
 
 export default function TripDetailPage() {
   const params = useParams<{ id: string }>();
@@ -119,6 +125,7 @@ export default function TripDetailPage() {
             onChange={setTab}
             options={[
               { value: "overview", label: "Descobertas" },
+              { value: "map", label: "Mapa" },
               { value: "expenses", label: "Gastos" },
               { value: "members", label: "Membros" },
             ]}
@@ -149,6 +156,8 @@ export default function TripDetailPage() {
             )}
           </div>
         )}
+
+        {tab === "map" && <TripMap tripId={tripId} entries={entriesState.entries} />}
 
         {tab === "expenses" && (
           <div style={{ padding: "0 16px 28px", display: "flex", flexDirection: "column", gap: 14 }}>

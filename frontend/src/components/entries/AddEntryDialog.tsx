@@ -27,6 +27,7 @@ export function AddEntryDialog({ onClose, onSubmit }: { onClose: () => void; onS
   const [platform, setPlatform] = useState("YouTube");
   const [url, setUrl] = useState("");
   const [linkTitle, setLinkTitle] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,11 +36,11 @@ export function AddEntryDialog({ onClose, onSubmit }: { onClose: () => void; onS
     setError(null);
     try {
       if (type === "photo" || type === "video") {
-        await onSubmit({ type, category, caption, media });
+        await onSubmit({ type, category, caption, address, media });
       } else if (type === "text") {
-        await onSubmit({ type, category, title, body });
+        await onSubmit({ type, category, title, body, address });
       } else {
-        await onSubmit({ type, category, platform, url, title: linkTitle, media });
+        await onSubmit({ type, category, platform, url, title: linkTitle, address, media });
       }
       onClose();
     } catch (err) {
@@ -79,6 +80,13 @@ export function AddEntryDialog({ onClose, onSubmit }: { onClose: () => void; onS
           ))}
         </Select>
       </Field>
+
+      <Field label="Endereço ou local (opcional)">
+        <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Ex: Torre Eiffel, Paris" />
+      </Field>
+      <p className="text-muted" style={{ fontSize: 11, margin: "-6px 0 4px" }}>
+        Preenchendo, esse item aparece na aba Mapa da viagem.
+      </p>
 
       {type === "photo" && (
         <>

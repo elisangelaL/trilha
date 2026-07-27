@@ -13,6 +13,7 @@ export interface NewEntryInput {
   caption?: string;
   url?: string;
   platform?: string;
+  address?: string;
   media?: File;
 }
 
@@ -49,6 +50,7 @@ export function useEntries(tripId: string) {
     if (input.caption) form.set("caption", input.caption);
     if (input.url) form.set("url", input.url);
     if (input.platform) form.set("platform", input.platform);
+    if (input.address) form.set("address", input.address);
     if (input.media) form.set("media", input.media);
 
     const data = await apiUpload<{ entry: EntryDetail }>(`/trips/${tripId}/entries`, form);

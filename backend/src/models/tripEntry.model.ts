@@ -7,6 +7,9 @@ export interface TripEntryRow {
   trip_id: string;
   author_id: string;
   category: EntryCategory;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
 }
 
@@ -14,6 +17,9 @@ export interface NewTripEntry {
   tripId: string;
   authorId: string;
   category: EntryCategory;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export async function listEntries(tripId: string): Promise<TripEntryRow[]> {
@@ -40,7 +46,14 @@ export async function findEntryById(tripId: string, entryId: string): Promise<Tr
 export async function createEntry(input: NewTripEntry): Promise<TripEntryRow> {
   const { data, error } = await supabaseAdmin
     .from("trip_entries")
-    .insert({ trip_id: input.tripId, author_id: input.authorId, category: input.category })
+    .insert({
+      trip_id: input.tripId,
+      author_id: input.authorId,
+      category: input.category,
+      address: input.address ?? null,
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+    })
     .select("*")
     .single();
   if (error) throw error;

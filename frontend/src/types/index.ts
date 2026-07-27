@@ -42,6 +42,9 @@ export interface EntrySummary {
   previewMediaUrl: string | null;
   previewMediaType: "photo" | "video" | null;
   previewText: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   authorId: string;
   author: string;
   authorInitials: string;
@@ -54,6 +57,9 @@ export interface EntrySummary {
 export interface EntryDetail {
   id: string;
   category: EntryCategory;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   authorId: string;
   author: string;
   createdAt: string;

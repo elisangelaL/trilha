@@ -21,7 +21,7 @@ export const getEntry = asyncHandler(async (req: Request, res: Response) => {
 
 export const createEntry = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  const { type, category, title, body, caption, url, platform } = req.body;
+  const { type, category, title, body, caption, url, platform, address } = req.body;
   const media = fileFromRequest(req);
 
   if ((type === "photo" || type === "video") && !media) {
@@ -38,6 +38,7 @@ export const createEntry = asyncHandler(async (req: Request, res: Response) => {
     caption,
     url,
     platform,
+    address,
     media,
   });
 

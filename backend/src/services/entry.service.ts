@@ -4,6 +4,7 @@ import * as reactionModel from "../models/entryReaction.model";
 import { getProfilesMap } from "./profile.service";
 import { uploadFile, deleteFileByPublicUrl, type UploadableFile } from "./storage.service";
 import { fetchThumbnailForUrl } from "./linkPreview.service";
+import { geocodeAddress } from "./geocode.service";
 import { ApiError } from "../utils/ApiError";
 import type { TripRole } from "../models/tripMember.model";
 
@@ -52,6 +53,9 @@ export interface EntrySummaryDTO {
   previewMediaUrl: string | null;
   previewMediaType: "photo" | "video" | null;
   previewText: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   authorId: string;
   author: string;
   authorInitials: string;
@@ -64,6 +68,9 @@ export interface EntrySummaryDTO {
 export interface EntryDetailDTO {
   id: string;
   category: entryModel.EntryCategory;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   authorId: string;
   author: string;
   createdAt: string;
@@ -114,6 +121,9 @@ function summarize(
     previewMediaUrl: firstMedia ? firstMedia.media_url ?? firstMedia.thumbnail_url : null,
     previewMediaType: firstMedia ? (firstMedia.type === "video" ? "video" : "photo") : null,
     previewText: first ? previewTextFor(first) : null,
+    address: entry.address,
+    latitude: entry.latitude,
+    longitude: entry.longitude,
     authorId: entry.author_id,
     author: authorName,
     authorInitials,
@@ -182,6 +192,9 @@ export async function getEntryDetail(tripId: string, entryId: string): Promise<E
   return {
     id: entry.id,
     category: entry.category,
+    address: entry.address,
+    latitude: entry.latitude,
+    longitude: entry.longitude,
     authorId: entry.author_id,
     author: profiles.get(entry.author_id)?.name ?? "Usuário",
     createdAt: entry.created_at,
@@ -222,10 +235,21 @@ export interface CreateEntryInput extends NewItemInput {
   tripId: string;
   authorId: string;
   category: entryModel.EntryCategory;
+  address?: string;
 }
 
 export async function createEntry(input: CreateEntryInput): Promise<EntryDetailDTO> {
-  const entry = await entryModel.createEntry({ tripId: input.tripId, authorId: input.authorId, category: input.category });
+  const address = input.address?.trim() || undefined;
+  const geocoded = address ? await geocodeAddress(address) : null;
+
+  const entry = await entryModel.createEntry({
+    tripId: input.tripId,
+    authorId: input.authorId,
+    category: input.category,
+    address,
+    latitude: geocoded?.latitude,
+    longitude: geocoded?.longitude,
+  });
 
   await addItem(input.tripId, entry.id, input.authorId, {
     type: input.type,

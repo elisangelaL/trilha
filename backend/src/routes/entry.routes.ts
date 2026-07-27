@@ -17,9 +17,10 @@ const createEntrySchema = z.object({
   caption: z.string().trim().optional(),
   url: z.string().trim().optional(),
   platform: z.string().trim().optional(),
+  address: z.string().trim().optional(),
 });
 
-const addItemSchema = createEntrySchema.omit({ category: true });
+const addItemSchema = createEntrySchema.omit({ category: true, address: true });
 
 const updateItemSchema = z.object({
   title: z.string().trim().optional(),
